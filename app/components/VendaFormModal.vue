@@ -125,7 +125,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
-import type { HistoricoVenda } from '~/shared/types/HistoricoVenda'
+import type { HistoricoVenda } from '~~/shared/types/HistoricoVenda'
+import { useClientes } from '~~/app/composables/useClientes'
+import BaseInput from '~/components/BaseInput.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -254,18 +256,19 @@ const handleSave = async () => {
     }
 
     // 2. Salvar a venda
-    const data = {
-      ...form,
-      // Ensure date is properly handled
-      created_at: new Date(form.created_at).toISOString()
+    const dataForVenda = {
+      contact_name: form.contact_name,
+      vendedor: form.vendedor,
+      valor_venda: form.valor_venda,
+      contato_id: form.contato_id,
+      id_mensagem_venda: props.venda?.id_mensagem_venda || null,
+      created_at: new Date(form.created_at as string).toISOString()
     }
 
     if (isEdit.value && props.venda?.id) {
-      const { error: updateErr } = await updateVenda(props.venda.id, data)
-      if (updateErr) throw updateErr
+      await updateVenda(props.venda.id, dataForVenda)
     } else {
-      const { error: createErr } = await createVenda(data)
-      if (createErr) throw createErr
+      await createVenda(dataForVenda)
     }
 
     emit('saved')

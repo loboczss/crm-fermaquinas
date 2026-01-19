@@ -17,7 +17,7 @@
             type="email"
             placeholder="seu@email.com"
             :model-value="email"
-            @update:model-value="email = $event"
+            @update:model-value="email = $event.toString()"
             required
             :disabled="loading"
           />

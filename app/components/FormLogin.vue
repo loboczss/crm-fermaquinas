@@ -7,7 +7,7 @@
         type="email"
         placeholder="exemplo@empresa.com"
         :model-value="email"
-        @update:model-value="$emit('update:email', $event)"
+        @update:model-value="$emit('update:email', $event.toString())"
         required
       />
 

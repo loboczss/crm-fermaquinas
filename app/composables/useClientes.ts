@@ -319,7 +319,7 @@ export const useClientes = () => {
     return data as HistoricoVenda[]
   }
 
-  const createVenda = async (venda: Omit<HistoricoVenda, 'id' | 'created_at'>) => {
+  const createVenda = async (venda: Omit<HistoricoVenda, 'id'>) => {
     const { data, error } = await (supabase as any)
       .from('historico_vendas_evastur')
       .insert([venda])

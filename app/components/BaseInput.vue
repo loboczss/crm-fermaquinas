@@ -30,7 +30,7 @@ interface Props {
   label?: string
   type?: string
   placeholder?: string
-  modelValue?: string
+  modelValue?: string | number
   required?: boolean
   disabled?: boolean
 }
@@ -38,11 +38,12 @@ interface Props {
 defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: string | number): void
 }>()
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:modelValue', target.value)
+  const value = target.type === 'number' ? Number(target.value) : target.value
+  emit('update:modelValue', value)
 }
 </script>
