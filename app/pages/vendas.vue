@@ -59,7 +59,68 @@
     </div>
 
     <SurfaceCard padding="sm" rounded="lg" class="mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <!-- Quick Filters & Sort -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-100">
+        <div class="flex flex-wrap gap-2">
+          <button
+            @click="applyQuickFilter('today')"
+            :class="[
+              'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200',
+              quickFilter === 'today' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ]"
+          >
+            Hoje
+          </button>
+          <button
+            @click="applyQuickFilter('week')"
+            :class="[
+              'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200',
+              quickFilter === 'week' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ]"
+          >
+            Esta Semana
+          </button>
+          <button
+            @click="applyQuickFilter('month')"
+            :class="[
+              'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200',
+              quickFilter === 'month' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ]"
+          >
+            Este Mês
+          </button>
+          <button
+            @click="applyQuickFilter('high-value')"
+            :class="[
+              'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200',
+              quickFilter === 'high-value' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ]"
+          >
+            Alto Valor (>R$ 5.000)
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="vendas-sort" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Ordenar:
+          </label>
+          <select
+            id="vendas-sort"
+            v-model="sortBy"
+            class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="date-desc">Mais Recentes</option>
+            <option value="date-asc">Mais Antigas</option>
+            <option value="value-desc">Maior Valor</option>
+            <option value="value-asc">Menor Valor</option>
+            <option value="name-asc">Nome (A-Z)</option>
+            <option value="name-desc">Nome (Z-A)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Detailed Filters -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
         <BaseInput
           id="vendas-busca"
           label="Buscar"
@@ -131,13 +192,13 @@
     </SurfaceCard>
 
     <div v-else>
-      <SurfaceCard v-if="filteredVendas.length === 0" padding="lg" class="text-center">
+      <SurfaceCard v-if="vendas.length === 0" padding="lg" class="text-center">
         <p class="text-gray-500">Nenhuma venda registrada.</p>
       </SurfaceCard>
 
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <VendaCard 
-          v-for="venda in filteredVendas" 
+          v-for="venda in vendas" 
           :key="venda.id" 
           :venda="venda"
           :loading="loadingClienteId === venda.contato_id"
@@ -179,7 +240,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from '#imports'
+import { ref, onMounted, computed, watch } from '#imports'
 import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
 import type { HistoricoVenda } from '~~/shared/types/HistoricoVenda'
 import { useClientes } from '~/composables/useClientes'
@@ -193,10 +254,11 @@ import VendaCard from '~/components/VendaCard.vue'
 import SalesQuantityChart from '~/components/SalesQuantityChart.vue'
 import SalesValueChart from '~/components/SalesValueChart.vue'
 
-const { getVendas, getClienteByContatoId, getVendasStats, getAllVendasForChart } = useClientes()
+const { getVendas, getClienteByContatoId, getVendasStats, getAllVendasForChart, getVendedores } = useClientes()
 
 const vendas = ref<HistoricoVenda[]>([])
 const allVendasForChart = ref<HistoricoVenda[]>([])
+const vendedoresList = ref<string[]>([])
 const loadingCharts = ref(false)
 const loading = ref(false)
 const error = ref('')
@@ -223,6 +285,9 @@ const filters = ref({
   maxValue: ''
 })
 
+const sortBy = ref('date-desc')
+const quickFilter = ref('')
+
 // Auto-imported formatters from ~/utils/formatters.ts used in template
 
 const loadVendas = async () => {
@@ -230,7 +295,10 @@ const loadVendas = async () => {
     loading.value = true
     error.value = ''
 
-    const result = await getVendas(currentPage.value, pageSize.value)
+    const result = await getVendas(currentPage.value, pageSize.value, {
+      ...filters.value,
+      sortBy: sortBy.value
+    })
     vendas.value = result.data
     totalCount.value = result.count
     totalPages.value = result.totalPages
@@ -241,6 +309,16 @@ const loadVendas = async () => {
   }
 }
 
+// Watch filters to reload data
+let debounceTimeout: any
+watch([filters, sortBy], () => {
+  clearTimeout(debounceTimeout)
+  debounceTimeout = setTimeout(() => {
+    currentPage.value = 1
+    loadVendas()
+  }, 500)
+}, { deep: true })
+
 const clearFilters = () => {
   filters.value = {
     search: '',
@@ -250,13 +328,70 @@ const clearFilters = () => {
     minValue: '',
     maxValue: ''
   }
+  sortBy.value = 'date-desc'
+  quickFilter.value = ''
+}
+
+const applyQuickFilter = (filter: string) => {
+  // Toggle off if clicking the same filter
+  if (quickFilter.value === filter) {
+    quickFilter.value = ''
+    clearFilters()
+    return
+  }
+
+  quickFilter.value = filter
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  switch (filter) {
+    case 'today':
+      filters.value.startDate = `${year}-${month}-${day}`
+      filters.value.endDate = `${year}-${month}-${day}`
+      filters.value.minValue = ''
+      filters.value.maxValue = ''
+      break
+    case 'week':
+      const weekStart = new Date(today)
+      weekStart.setDate(today.getDate() - today.getDay())
+      const wsYear = weekStart.getFullYear()
+      const wsMonth = String(weekStart.getMonth() + 1).padStart(2, '0')
+      const wsDay = String(weekStart.getDate()).padStart(2, '0')
+      filters.value.startDate = `${wsYear}-${wsMonth}-${wsDay}`
+      filters.value.endDate = `${year}-${month}-${day}`
+      filters.value.minValue = ''
+      filters.value.maxValue = ''
+      break
+    case 'month':
+      const monthStart = new Date(year, today.getMonth(), 1)
+      const msYear = monthStart.getFullYear()
+      const msMonth = String(monthStart.getMonth() + 1).padStart(2, '0')
+      filters.value.startDate = `${msYear}-${msMonth}-01`
+      filters.value.endDate = `${year}-${month}-${day}`
+      filters.value.minValue = ''
+      filters.value.maxValue = ''
+      break
+    case 'high-value':
+      filters.value.minValue = '5000'
+      filters.value.maxValue = ''
+      filters.value.startDate = ''
+      filters.value.endDate = ''
+      break
+  }
+}
+
+const loadVendedores = async () => {
+  try {
+    vendedoresList.value = await getVendedores()
+  } catch (e) {
+    console.error('Erro ao carregar vendedores:', e)
+  }
 }
 
 const vendedores = computed(() => {
-  const items = vendas.value
-    .map(venda => venda.vendedor)
-    .filter((item): item is string => !!item)
-  return [...new Set(items)].sort()
+  return vendedoresList.value
 })
 
 const loadVendasStats = async () => {
@@ -277,34 +412,6 @@ const loadChartData = async () => {
     loadingCharts.value = false
   }
 }
-
-const filteredVendas = computed(() => {
-  const search = filters.value.search.trim().toLowerCase()
-  const vendedor = filters.value.vendedor
-  const startDate = filters.value.startDate ? new Date(filters.value.startDate) : null
-  const endDate = filters.value.endDate ? new Date(filters.value.endDate) : null
-  const minValue = filters.value.minValue ? Number(filters.value.minValue) : null
-  const maxValue = filters.value.maxValue ? Number(filters.value.maxValue) : null
-
-  return vendas.value.filter(venda => {
-    const matchesSearch = !search ||
-      venda.contact_name?.toLowerCase().includes(search) ||
-      venda.contato_id.toLowerCase().includes(search) ||
-      venda.vendedor?.toLowerCase().includes(search)
-
-    const matchesVendedor = !vendedor || venda.vendedor === vendedor
-
-    const vendaDate = new Date(venda.created_at)
-    const matchesStart = !startDate || vendaDate >= startDate
-    const matchesEnd = !endDate || vendaDate <= endDate
-
-    const valor = venda.valor_venda ?? null
-    const matchesMin = minValue === null || (valor !== null && valor >= minValue)
-    const matchesMax = maxValue === null || (valor !== null && valor <= maxValue)
-
-    return matchesSearch && matchesVendedor && matchesStart && matchesEnd && matchesMin && matchesMax
-  })
-})
 
 const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -330,5 +437,6 @@ onMounted(() => {
   loadVendas()
   loadVendasStats()
   loadChartData()
+  loadVendedores()
 })
 </script>

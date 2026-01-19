@@ -94,8 +94,26 @@ const years = computed(() => {
   return [current - 2, current - 1, current, current + 1]
 })
 
-const getDaysInMonth = (month: number, year: number) => {
-  return new Date(year, month + 1, 0).getDate()
+const getDaysToShow = (month: number, year: number) => {
+  const now = new Date()
+  const totalDays = new Date(year, month + 1, 0).getDate()
+  
+  // Se for o mês e ano atual, mostrar apenas até hoje
+  if (month === now.getMonth() && year === now.getFullYear()) {
+    return now.getDate()
+  }
+  
+  // Se for um mês futuro (mesmo ano), mostrar zero
+  if (year === now.getFullYear() && month > now.getMonth()) {
+    return 0
+  }
+
+  // Se for ano futuro, mostrar zero
+  if (year > now.getFullYear()) {
+    return 0
+  }
+
+  return totalDays
 }
 
 const filteredVendas = computed(() => {
@@ -106,8 +124,8 @@ const filteredVendas = computed(() => {
 })
 
 const dailyData = computed(() => {
-  const daysInMonth = getDaysInMonth(selectedMonth.value, selectedYear.value)
-  const dailyValues: number[] = new Array(daysInMonth).fill(0)
+  const daysToShow = getDaysToShow(selectedMonth.value, selectedYear.value)
+  const dailyValues: number[] = new Array(daysToShow).fill(0)
 
   filteredVendas.value.forEach(venda => {
     const day = new Date(venda.created_at).getDate()
@@ -124,7 +142,7 @@ const summaryStats = computed(() => {
   const data = dailyData.value
   const total = data.reduce((acc, curr) => acc + curr, 0)
   const count = filteredVendas.value.length
-  const max = Math.max(...data)
+  const max = Math.max(...(data.length > 0 ? data : [0]))
   const bestDayIndex = data.lastIndexOf(max)
   
   return [
@@ -135,8 +153,8 @@ const summaryStats = computed(() => {
 })
 
 const chartData = computed<ChartData<'line'>>(() => {
-  const daysInMonth = getDaysInMonth(selectedMonth.value, selectedYear.value)
-  const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`)
+  const daysToShow = getDaysToShow(selectedMonth.value, selectedYear.value)
+  const labels = Array.from({ length: daysToShow }, (_, i) => `${i + 1}`)
 
   return {
     labels,

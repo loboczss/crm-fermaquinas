@@ -13,6 +13,16 @@ export interface ClienteFilters {
   orderDirection?: 'asc' | 'desc'
 }
 
+export interface VendaFilters {
+  search?: string
+  vendedor?: string
+  startDate?: string
+  endDate?: string
+  minValue?: number | string
+  maxValue?: number | string
+  sortBy?: string
+}
+
 export const useClientes = () => {
   const supabase = useSupabaseClient<Database>()
 
@@ -171,15 +181,65 @@ export const useClientes = () => {
     return data as HistoricoMsg[]
   }
 
-  const getVendas = async (page: number = 1, pageSize: number = 20) => {
+  const getVendas = async (page: number = 1, pageSize: number = 20, filters?: VendaFilters) => {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
 
-    const { data, error, count } = await (supabase as any)
+    let query = (supabase as any)
       .from('historico_vendas_evastur')
       .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(from, to)
+
+    if (filters?.search) {
+      const search = `%${filters.search}%`
+      query = query.or(`contact_name.ilike.${search},contato_id.ilike.${search},vendedor.ilike.${search}`)
+    }
+
+    if (filters?.vendedor) {
+      query = query.eq('vendedor', filters.vendedor)
+    }
+
+    if (filters?.startDate) {
+      query = query.gte('created_at', filters.startDate)
+    }
+
+    if (filters?.endDate) {
+      // Adiciona o fim do dia para garantir que pega tudo daquela data
+      query = query.lte('created_at', `${filters.endDate}T23:59:59`)
+    }
+
+    if (filters?.minValue !== undefined && filters?.minValue !== '') {
+      query = query.gte('valor_venda', filters.minValue)
+    }
+
+    if (filters?.maxValue !== undefined && filters?.maxValue !== '') {
+      query = query.lte('valor_venda', filters.maxValue)
+    }
+
+    // Ordenação
+    switch (filters?.sortBy) {
+      case 'date-desc':
+        query = query.order('created_at', { ascending: false })
+        break
+      case 'date-asc':
+        query = query.order('created_at', { ascending: true })
+        break
+      case 'value-desc':
+        query = query.order('valor_venda', { ascending: false })
+        break
+      case 'value-asc':
+        query = query.order('valor_venda', { ascending: true })
+        break
+      case 'name-asc':
+        query = query.order('contact_name', { ascending: true })
+        break
+      case 'name-desc':
+        query = query.order('contact_name', { ascending: false })
+        break
+      default:
+        query = query.order('created_at', { ascending: false })
+    }
+
+    const { data, error, count } = await query.range(from, to)
 
     if (error) throw error
 
@@ -284,6 +344,16 @@ export const useClientes = () => {
     return allVendas
   }
 
+  const getVendedores = async () => {
+    const { data } = await (supabase as any)
+      .from('historico_vendas_evastur')
+      .select('vendedor')
+      .not('vendedor', 'is', null)
+    
+    const items = (data || []) as Array<{ vendedor: string }>
+    return [...new Set(items.map(i => i.vendedor).filter(v => !!v))].sort()
+  }
+
   return {
     getClientes,
     getClienteById,
@@ -295,6 +365,7 @@ export const useClientes = () => {
     getVendasByContatoId,
     getAllVendasForChart,
     getVendas,
-    getVendasStats
+    getVendasStats,
+    getVendedores
   }
 }
