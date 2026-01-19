@@ -26,7 +26,7 @@ const props = defineProps<{
   variant?: 'primary' | 'success' | 'warning' | 'info' | 'danger' | 'neutral'
 }>()
 
-const variantClasses: Record<string, { bg: string, text: string }> = {
+const variantClasses = {
   primary: { bg: 'bg-primary/10', text: 'text-primary' },
   success: { bg: 'bg-emerald-500/10', text: 'text-emerald-600' },
   warning: { bg: 'bg-amber-500/10', text: 'text-amber-600' },
@@ -35,6 +35,13 @@ const variantClasses: Record<string, { bg: string, text: string }> = {
   neutral: { bg: 'bg-gray-100', text: 'text-gray-600' }
 }
 
-const colorBg = computed(() => variantClasses[props.variant || 'primary']?.bg || variantClasses.primary.bg)
-const colorText = computed(() => variantClasses[props.variant || 'primary']?.text || variantClasses.primary.text)
+const colorBg = computed(() => {
+  const v = (props.variant as keyof typeof variantClasses) || 'primary'
+  return (variantClasses[v] || variantClasses.primary).bg
+})
+
+const colorText = computed(() => {
+  const v = (props.variant as keyof typeof variantClasses) || 'primary'
+  return (variantClasses[v] || variantClasses.primary).text
+})
 </script>
