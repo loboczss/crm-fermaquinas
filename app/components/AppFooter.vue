@@ -43,15 +43,15 @@
           <ul class="space-y-4 text-sm">
             <li class="flex items-center gap-3">
               <span class="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-              contato@crmeva.com
+              contato@evastur.com
             </li>
             <li class="flex items-center gap-3">
               <span class="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-              (11) 9999-9999
+              (68) 99987-2973
             </li>
             <li class="flex items-center gap-3">
               <span class="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-              São Paulo, SP
+              Cruzeiro do Sul, AC
             </li>
           </ul>
         </div>
