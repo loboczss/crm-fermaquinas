@@ -21,6 +21,13 @@
       </select>
     </template>
 
+    <template #summary>
+      <div v-for="stat in summaryStats" :key="stat.label" class="flex flex-col">
+        <span class="text-[10px] text-gray-400 uppercase font-semibold tracking-wider">{{ stat.label }}</span>
+        <span class="text-sm font-bold text-gray-700">{{ stat.value }}</span>
+      </div>
+    </template>
+
     <div v-if="loading" class="h-full flex items-center justify-center">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
     </div>
@@ -45,6 +52,7 @@ import {
   type ChartOptions
 } from 'chart.js'
 import ChartCard from './ChartCard.vue'
+import { formatCurrency } from '../utils/formatters'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
@@ -112,6 +120,20 @@ const dailyData = computed(() => {
   return dailyValues
 })
 
+const summaryStats = computed(() => {
+  const data = dailyData.value
+  const total = data.reduce((acc, curr) => acc + curr, 0)
+  const count = filteredVendas.value.length
+  const max = Math.max(...data)
+  const bestDayIndex = data.lastIndexOf(max)
+  
+  return [
+    { label: 'Total no Período', value: formatCurrency(total) },
+    { label: 'Ticket Médio', value: count > 0 ? formatCurrency(total / count) : 'R$ 0,00' },
+    { label: 'Melhor Faturamento', value: max > 0 ? `Dia ${bestDayIndex + 1} (${formatCurrency(max)})` : '-' }
+  ]
+})
+
 const chartData = computed<ChartData<'line'>>(() => {
   const daysInMonth = getDaysInMonth(selectedMonth.value, selectedYear.value)
   const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`)
@@ -139,35 +161,38 @@ const chartData = computed<ChartData<'line'>>(() => {
   }
 })
 
-const formatCurrency = (value: number) => {
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  })
-}
-
-const chartOptions = computed(() => ({
+const chartOptions = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
+  interaction: {
+    intersect: false,
+    mode: 'index',
+  },
   plugins: {
     legend: {
       display: false
     },
     tooltip: {
       backgroundColor: 'rgba(17, 24, 39, 0.95)',
-      titleFont: { size: 12, weight: 'bold' as const },
+      titleFont: { size: 12, weight: 'bold' },
       bodyFont: { size: 11 },
       padding: 10,
       cornerRadius: 8,
       displayColors: false,
       callbacks: {
-        title: (items: any[]) => `Dia ${items[0]?.label}`,
-        label: (item: any) => formatCurrency(Number(item.raw))
+        title: (items: any[]) => `Dia ${items[0]?.label} de ${months[selectedMonth.value]?.label}`,
+        label: (item: any) => `Faturamento: ${formatCurrency(item.raw as number)}`
       }
     }
   },
   scales: {
     x: {
+      title: {
+        display: true,
+        text: 'Dias do Mês',
+        font: { size: 10, weight: 'bold' },
+        color: '#9CA3AF'
+      },
       grid: { display: false },
       border: { display: false },
       ticks: {
@@ -177,6 +202,12 @@ const chartOptions = computed(() => ({
       }
     },
     y: {
+      title: {
+        display: true,
+        text: 'Valor (R$)',
+        font: { size: 10, weight: 'bold' },
+        color: '#9CA3AF'
+      },
       beginAtZero: true,
       grid: {
         color: 'rgba(243, 244, 246, 1)'
@@ -185,9 +216,9 @@ const chartOptions = computed(() => ({
       ticks: {
         font: { size: 10 },
         color: '#9CA3AF',
-        callback: (value: string | number) => {
+        callback: (value: any) => {
           if (typeof value === 'number') {
-            return value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value.toFixed(0)
+            return value >= 1000 ? `R$ ${(value / 1000).toFixed(0)}k` : `R$ ${value}`
           }
           return value
         }

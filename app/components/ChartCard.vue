@@ -12,8 +12,13 @@
     </div>
     
     <!-- Chart Content -->
-    <div class="p-5" :style="{ height: `${height}px` }">
-      <slot />
+    <div class="p-5 flex flex-col gap-4" :style="{ minHeight: `${height}px` }">
+      <div v-if="$slots.summary" class="bg-gray-50/50 rounded-xl p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <slot name="summary" />
+      </div>
+      <div class="flex-1">
+        <slot />
+      </div>
     </div>
   </SurfaceCard>
 </template>

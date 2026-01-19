@@ -43,18 +43,18 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <SalesQuantityChart 
         :vendas="allVendasForChart" 
         :loading="loadingCharts"
-        title="Vendas por Dia"
-        subtitle="Quantidade de vendas realizadas no mês"
+        title="Quantidade de Vendas"
+        subtitle="Volume diário de vendas realizadas"
       />
       <SalesValueChart 
         :vendas="allVendasForChart" 
         :loading="loadingCharts"
-        title="Valor por Dia"
-        subtitle="Total vendido em R$ no mês"
+        title="Faturamento Diário"
+        subtitle="Receita total gerada por dia"
       />
     </div>
 

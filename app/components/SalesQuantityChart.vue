@@ -21,6 +21,13 @@
       </select>
     </template>
 
+    <template #summary>
+      <div v-for="stat in summaryStats" :key="stat.label" class="flex flex-col">
+        <span class="text-[10px] text-gray-400 uppercase font-semibold tracking-wider">{{ stat.label }}</span>
+        <span class="text-sm font-bold text-gray-700">{{ stat.value }}</span>
+      </div>
+    </template>
+
     <div v-if="loading" class="h-full flex items-center justify-center">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
@@ -110,6 +117,19 @@ const dailyData = computed(() => {
   return dailyCounts
 })
 
+const summaryStats = computed(() => {
+  const data = dailyData.value
+  const total = data.reduce((acc, curr) => acc + curr, 0)
+  const max = Math.max(...data)
+  const bestDayIndex = data.lastIndexOf(max)
+  
+  return [
+    { label: 'Total no Período', value: `${total} vendas` },
+    { label: 'Média/Dia', value: (total / data.length).toFixed(1) },
+    { label: 'Pico de Vendas', value: max > 0 ? `Dia ${bestDayIndex + 1} (${max})` : '-' }
+  ]
+})
+
 const chartData = computed<ChartData<'bar'>>(() => {
   const daysInMonth = getDaysInMonth(selectedMonth.value, selectedYear.value)
   const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`)
@@ -130,7 +150,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
   }
 })
 
-const chartOptions = computed(() => ({
+const chartOptions = computed<ChartOptions<'bar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -139,19 +159,25 @@ const chartOptions = computed(() => ({
     },
     tooltip: {
       backgroundColor: 'rgba(17, 24, 39, 0.95)',
-      titleFont: { size: 12, weight: 'bold' as const },
+      titleFont: { size: 12, weight: 'bold' },
       bodyFont: { size: 11 },
       padding: 10,
       cornerRadius: 8,
       displayColors: false,
       callbacks: {
-        title: (items: any[]) => `Dia ${items[0]?.label}`,
-        label: (item: any) => `${item.raw} venda${Number(item.raw) !== 1 ? 's' : ''}`
+        title: (items: any[]) => `Dia ${items[0]?.label} de ${months[selectedMonth.value]?.label}`,
+        label: (item: any) => `Volume: ${item.raw} venda${Number(item.raw) !== 1 ? 's' : ''}`
       }
     }
   },
   scales: {
     x: {
+      title: {
+        display: true,
+        text: 'Dias do Mês',
+        font: { size: 10, weight: 'bold' },
+        color: '#9CA3AF'
+      },
       grid: { display: false },
       border: { display: false },
       ticks: {
@@ -161,6 +187,12 @@ const chartOptions = computed(() => ({
       }
     },
     y: {
+      title: {
+        display: true,
+        text: 'Quantidade',
+        font: { size: 10, weight: 'bold' },
+        color: '#9CA3AF'
+      },
       beginAtZero: true,
       grid: {
         color: 'rgba(243, 244, 246, 1)'
