@@ -42,6 +42,22 @@
       </StatCard>
     </div>
 
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <SalesQuantityChart 
+        :vendas="allVendasForChart" 
+        :loading="loadingCharts"
+        title="Vendas por Dia"
+        subtitle="Quantidade de vendas realizadas no mês"
+      />
+      <SalesValueChart 
+        :vendas="allVendasForChart" 
+        :loading="loadingCharts"
+        title="Valor por Dia"
+        subtitle="Total vendido em R$ no mês"
+      />
+    </div>
+
     <SurfaceCard padding="sm" rounded="lg" class="mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
         <BaseInput
@@ -174,10 +190,14 @@ import PageShell from '~/components/PageShell.vue'
 import SurfaceCard from '~/components/SurfaceCard.vue'
 import StatCard from '~/components/StatCard.vue'
 import VendaCard from '~/components/VendaCard.vue'
+import SalesQuantityChart from '~/components/SalesQuantityChart.vue'
+import SalesValueChart from '~/components/SalesValueChart.vue'
 
-const { getVendas, getClienteByContatoId, getVendasStats } = useClientes()
+const { getVendas, getClienteByContatoId, getVendasStats, getAllVendasForChart } = useClientes()
 
 const vendas = ref<HistoricoVenda[]>([])
+const allVendasForChart = ref<HistoricoVenda[]>([])
+const loadingCharts = ref(false)
 const loading = ref(false)
 const error = ref('')
 const currentPage = ref(1)
@@ -247,6 +267,17 @@ const loadVendasStats = async () => {
   }
 }
 
+const loadChartData = async () => {
+  try {
+    loadingCharts.value = true
+    allVendasForChart.value = await getAllVendasForChart()
+  } catch (e: any) {
+    console.error('Erro ao carregar dados do gráfico:', e)
+  } finally {
+    loadingCharts.value = false
+  }
+}
+
 const filteredVendas = computed(() => {
   const search = filters.value.search.trim().toLowerCase()
   const vendedor = filters.value.vendedor
@@ -298,5 +329,6 @@ const openClienteModal = async (contatoId: string) => {
 onMounted(() => {
   loadVendas()
   loadVendasStats()
+  loadChartData()
 })
 </script>

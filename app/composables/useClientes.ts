@@ -248,6 +248,42 @@ export const useClientes = () => {
     return data as HistoricoVenda[]
   }
 
+  const getAllVendasForChart = async () => {
+    const pageSize = 1000
+    let from = 0
+    let allVendas: HistoricoVenda[] = []
+    let totalCount: number | null = null
+    let fetched = 0
+    let hasMore = true
+
+    while (hasMore) {
+      const { data, error, count } = await (supabase as any)
+        .from('historico_vendas_evastur')
+        .select('created_at, valor_venda', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, from + pageSize - 1)
+
+      if (error) throw error
+
+      if (typeof count === 'number') {
+        totalCount = count
+      }
+
+      const rows = (data || []) as HistoricoVenda[]
+      allVendas = [...allVendas, ...rows]
+
+      fetched += rows.length
+      from += pageSize
+      if (totalCount !== null) {
+        hasMore = fetched < totalCount
+      } else {
+        hasMore = rows.length === pageSize
+      }
+    }
+
+    return allVendas
+  }
+
   return {
     getClientes,
     getClienteById,
@@ -257,6 +293,7 @@ export const useClientes = () => {
     getFilterOptions,
     getMensagensByContatoId,
     getVendasByContatoId,
+    getAllVendasForChart,
     getVendas,
     getVendasStats
   }
