@@ -142,6 +142,8 @@
             <tr>
               <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cidade</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vendas (Qtd)</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vendas (Total)</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">E-mail</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sentimento</th>
               <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
@@ -157,6 +159,12 @@
               </td>
               <td class="px-6 py-4 text-sm text-gray-600">
                 {{ cliente.cidade || '-' }}
+              </td>
+              <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                {{ cliente.total_vendas_count || 0 }}
+              </td>
+              <td class="px-6 py-4 text-sm font-semibold text-primary">
+                {{ formatCurrency(cliente.total_vendas_valor || 0) }}
               </td>
               <td class="px-6 py-4 text-sm text-gray-600">
                 {{ cliente.email || '-' }}
@@ -241,6 +249,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from '#imports'
+import { formatCurrency } from '~/utils/formatters'
 import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
 import type { ClienteFilters } from '~/composables/useClientes'
 import { useClientes } from '~/composables/useClientes'

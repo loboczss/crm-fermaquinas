@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { computed } from '#imports'
+import { useHead } from '#imports'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -24,6 +25,10 @@ const props = withDefaults(defineProps<{
   maxWidth?: 'full' | 'lg' | 'xl'
 }>(), {
   maxWidth: 'full'
+})
+
+useHead({
+  title: props.title ? `${props.title} | Crm: Evastur` : 'Crm: Evastur'
 })
 
 const maxWidthClass = computed(() => {

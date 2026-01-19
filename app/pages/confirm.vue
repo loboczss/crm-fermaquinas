@@ -12,6 +12,11 @@
 
 <script setup lang="ts">
 import { watch } from 'vue'
+import { useHead } from '#imports'
+
+useHead({
+  title: 'Confirmando... | Crm: Evastur'
+})
 
 const user = useSupabaseUser()
 const redirectInfo = useSupabaseCookieRedirect()

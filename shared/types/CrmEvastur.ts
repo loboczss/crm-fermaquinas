@@ -14,4 +14,6 @@ export interface CrmEvastur {
   nome_social: string | null
   fase_obra: string | null
   compras_cliente: any[] | null
+  total_vendas_count?: number
+  total_vendas_valor?: number
 }

@@ -38,11 +38,17 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { useHead } from '#imports'
+
+const props = defineProps<{
   title: string
   subtitle: string
   message?: string
   isError?: boolean
   loading?: boolean
 }>()
+
+useHead({
+  title: props.title ? `${props.title} | Crm: Evastur` : 'Crm: Evastur'
+})
 </script>

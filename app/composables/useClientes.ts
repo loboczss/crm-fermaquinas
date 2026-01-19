@@ -26,6 +26,41 @@ export interface VendaFilters {
 export const useClientes = () => {
   const supabase = useSupabaseClient<Database>()
 
+  const enrichClientesWithSales = async (clientes: CrmEvastur[]) => {
+    if (clientes.length === 0) return clientes
+
+    const contatoIds = clientes.map(c => c.contato_id).filter(Boolean)
+    
+    // Buscar todas as vendas para esses clientes
+    const { data: vendas, error } = await (supabase as any)
+      .from('historico_vendas_evastur')
+      .select('contato_id, valor_venda')
+      .in('contato_id', contatoIds)
+
+    if (error) {
+      console.error('Erro ao buscar vendas para enriquecimento:', error)
+      return clientes
+    }
+
+    // Agrupar vendas por contato_id
+    const salesMap = (vendas || []).reduce((acc: Record<string, { count: number, total: number }>, v: any) => {
+      if (!v.contato_id) return acc
+      const current = acc[v.contato_id] || { count: 0, total: 0 }
+      acc[v.contato_id] = {
+        count: current.count + 1,
+        total: current.total + Number(v.valor_venda || 0)
+      }
+      return acc
+    }, {})
+
+    // Mesclar dados nos clientes
+    return clientes.map(c => ({
+      ...c,
+      total_vendas_count: salesMap[c.contato_id]?.count || 0,
+      total_vendas_valor: salesMap[c.contato_id]?.total || 0
+    }))
+  }
+
   const getClientes = async (page: number = 1, pageSize: number = 20, filters?: ClienteFilters) => {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
@@ -57,8 +92,10 @@ export const useClientes = () => {
 
     if (error) throw error
 
+    const enrichedData = await enrichClientesWithSales(data as CrmEvastur[])
+
     return {
-      data: data as CrmEvastur[],
+      data: enrichedData,
       count: count || 0,
       totalPages: Math.ceil((count || 0) / pageSize)
     }
@@ -141,8 +178,10 @@ export const useClientes = () => {
 
     if (error) throw error
 
+    const enrichedData = await enrichClientesWithSales(data as CrmEvastur[])
+
     return {
-      data: data as CrmEvastur[],
+      data: enrichedData,
       count: count || 0,
       totalPages: Math.ceil((count || 0) / pageSize)
     }

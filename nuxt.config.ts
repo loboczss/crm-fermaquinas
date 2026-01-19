@@ -2,6 +2,14 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
+  app: {
+    head: {
+      title: 'Crm: Evastur',
+      meta: [
+        { name: 'description', content: 'CRM customizado para Evastur' }
+      ]
+    }
+  },
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/supabase'],
   css: ['~/assets/css/main.css'],
   supabase: {

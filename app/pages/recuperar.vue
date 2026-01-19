@@ -49,10 +49,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, navigateTo } from '#imports'
+import { ref, navigateTo, useHead } from '#imports'
 import { useSupabaseClient } from '#imports'
 import BaseInput from '~/components/BaseInput.vue'
 import BaseButton from '~/components/BaseButton.vue'
+
+useHead({
+  title: 'Recuperar Senha | Crm: Evastur'
+})
 
 const supabase = useSupabaseClient()
 const email = ref('')
