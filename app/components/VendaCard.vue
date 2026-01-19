@@ -58,18 +58,32 @@
         </div>
       </div>
 
-       <!-- Action Area (Implicit Action) -->
-       <div class="mt-auto pt-2 border-t border-gray-50">
+       <!-- Action Area -->
+       <div class="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between px-1">
            <button 
-                class="w-full text-xs font-semibold text-primary hover:text-primary-dark uppercase tracking-wide flex items-center justify-center gap-1 group/btn py-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex-1 text-[10px] font-bold text-primary hover:bg-primary/5 uppercase tracking-tight py-2 rounded-lg transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
                 :disabled="loading"
                 @click="$emit('view', venda.contato_id)"
+                title="Ver detalhes do cliente"
             >
-                <span v-if="loading">Carregando...</span>
-                <span v-else class="flex items-center gap-1">
-                  Ver Detalhes
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </span>
+                <span v-if="loading">...</span>
+                <span v-else>Ver</span>
+           </button>
+           <div class="w-px h-4 bg-gray-100 mx-1"></div>
+           <button 
+                class="flex-1 text-[10px] font-bold text-gray-500 hover:bg-gray-50 uppercase tracking-tight py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                @click="$emit('edit', venda)"
+                title="Editar venda"
+            >
+                <span>Editar</span>
+           </button>
+           <div class="w-px h-4 bg-gray-100 mx-1"></div>
+           <button 
+                class="flex-1 text-[10px] font-bold text-gray-400 hover:text-red-600 hover:bg-red-50 uppercase tracking-tight py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                @click="$emit('delete', venda.id)"
+                title="Excluir venda"
+            >
+                <span>Excluir</span>
            </button>
        </div>
     </div>
@@ -90,5 +104,7 @@ defineProps<{
 
 defineEmits<{
   (e: 'view', id: string): void
+  (e: 'edit', venda: any): void
+  (e: 'delete', id: number): void
 }>()
 </script>

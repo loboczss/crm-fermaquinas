@@ -1,5 +1,18 @@
 <template>
   <PageShell title="Vendas" subtitle="Visão rápida das vendas registradas">
+    <template #actions>
+      <button
+        @click="openCreateModal"
+        class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Nova Venda
+      </button>
+    </template>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <StatCard 
         title="Total" 
@@ -203,6 +216,8 @@
           :venda="venda"
           :loading="loadingClienteId === venda.contato_id"
           @view="openClienteModal"
+          @edit="openEditModal"
+          @delete="handleDeleteVenda"
         />
       </div>
 
@@ -236,6 +251,18 @@
       v-model="showDetailModal"
       :cliente="selectedCliente"
     />
+
+    <VendaFormModal
+      v-model="showFormModal"
+      :venda="selectedVenda"
+      @saved="handleVendaSaved"
+    />
+
+    <DeleteConfirmationModal
+      v-model="showDeleteModal"
+      :loading="deleting"
+      @confirm="confirmDelete"
+    />
   </PageShell>
 </template>
 
@@ -253,8 +280,10 @@ import StatCard from '~/components/StatCard.vue'
 import VendaCard from '~/components/VendaCard.vue'
 import SalesQuantityChart from '~/components/SalesQuantityChart.vue'
 import SalesValueChart from '~/components/SalesValueChart.vue'
+import VendaFormModal from '~/components/VendaFormModal.vue'
+import DeleteConfirmationModal from '~/components/DeleteConfirmationModal.vue'
 
-const { getVendas, getClienteByContatoId, getVendasStats, getAllVendasForChart, getVendedores } = useClientes()
+const { getVendas, getClienteByContatoId, getVendasStats, getAllVendasForChart, getVendedores, deleteVenda } = useClientes()
 
 const vendas = ref<HistoricoVenda[]>([])
 const allVendasForChart = ref<HistoricoVenda[]>([])
@@ -270,6 +299,16 @@ const pageSize = ref(12)
 const showDetailModal = ref(false)
 const selectedCliente = ref<CrmEvastur | null>(null)
 const loadingClienteId = ref<string | null>(null)
+
+// Form Modal State
+const showFormModal = ref(false)
+const selectedVenda = ref<any | null>(null)
+
+// Delete Modal State
+const showDeleteModal = ref(false)
+const vendaToDelete = ref<number | null>(null)
+const deleting = ref(false)
+
 const vendasStats = ref({
   total: null as number | null,
   maior: null as number | null,
@@ -430,6 +469,47 @@ const openClienteModal = async (contatoId: string) => {
     error.value = e.message || 'Erro ao carregar cliente'
   } finally {
     loadingClienteId.value = null
+  }
+}
+
+const openCreateModal = () => {
+  selectedVenda.value = null
+  showFormModal.value = true
+}
+
+const openEditModal = (venda: HistoricoVenda) => {
+  selectedVenda.value = venda
+  showFormModal.value = true
+}
+
+const handleVendaSaved = () => {
+  loadVendas()
+  loadVendasStats()
+  loadChartData()
+}
+
+const handleDeleteVenda = (id: number) => {
+  vendaToDelete.value = id
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!vendaToDelete.value) return
+
+  try {
+    deleting.value = true
+    await deleteVenda(vendaToDelete.value)
+    
+    // Refresh all data
+    handleVendaSaved()
+    
+    // Close modal
+    showDeleteModal.value = false
+    vendaToDelete.value = null
+  } catch (e: any) {
+    alert('Erro ao excluir venda: ' + (e.message || 'Erro desconhecido'))
+  } finally {
+    deleting.value = false
   }
 }
 

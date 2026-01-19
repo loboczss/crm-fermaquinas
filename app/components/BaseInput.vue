@@ -6,6 +6,7 @@
     </label>
     <div class="relative group">
       <input
+        v-bind="$attrs"
         :id="id"
         :type="type"
         :placeholder="placeholder"
@@ -20,6 +21,10 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  inheritAttrs: false
+})
+
 interface Props {
   id: string
   label?: string

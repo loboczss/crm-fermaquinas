@@ -86,6 +86,17 @@ export const useClientes = () => {
     return data as CrmEvastur
   }
 
+  const createCliente = async (cliente: Partial<CrmEvastur>) => {
+    const { data, error } = await (supabase as any)
+      .from('crm_evastur')
+      .insert([cliente])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as CrmEvastur
+  }
+
   const updateCliente = async (id: number, updates: Partial<CrmEvastur>) => {
     const { data, error } = await (supabase as any)
       .from('crm_evastur')
@@ -308,6 +319,39 @@ export const useClientes = () => {
     return data as HistoricoVenda[]
   }
 
+  const createVenda = async (venda: Omit<HistoricoVenda, 'id' | 'created_at'>) => {
+    const { data, error } = await (supabase as any)
+      .from('historico_vendas_evastur')
+      .insert([venda])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as HistoricoVenda
+  }
+
+  const updateVenda = async (id: number, updates: Partial<HistoricoVenda>) => {
+    const { data, error } = await (supabase as any)
+      .from('historico_vendas_evastur')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as HistoricoVenda
+  }
+
+  const deleteVenda = async (id: number) => {
+    const { error } = await (supabase as any)
+      .from('historico_vendas_evastur')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+    return true
+  }
+
   const getAllVendasForChart = async () => {
     const pageSize = 1000
     let from = 0
@@ -354,10 +398,21 @@ export const useClientes = () => {
     return [...new Set(items.map(i => i.vendedor).filter(v => !!v))].sort()
   }
 
+  const getAllClientesMinimal = async () => {
+    const { data, error } = await supabase
+      .from('crm_evastur')
+      .select('nome, contato_id')
+      .order('nome')
+
+    if (error) throw error
+    return (data || []) as Array<{ nome: string, contato_id: string }>
+  }
+
   return {
     getClientes,
     getClienteById,
     getClienteByContatoId,
+    createCliente,
     updateCliente,
     searchClientes,
     getFilterOptions,
@@ -366,6 +421,10 @@ export const useClientes = () => {
     getAllVendasForChart,
     getVendas,
     getVendasStats,
-    getVendedores
+    getVendedores,
+    createVenda,
+    updateVenda,
+    deleteVenda,
+    getAllClientesMinimal
   }
 }
