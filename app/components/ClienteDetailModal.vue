@@ -1,142 +1,170 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="close">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <!-- Header -->
-          <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
-            <div>
-              <h2 class="text-xl font-bold text-gray-900">{{ displayName }}</h2>
-              <p class="text-sm text-gray-500">ID: {{ cliente?.contato_id }}</p>
-            </div>
-            <button
-              @click="close"
-              class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+  <ModalBase
+    :model-value="modelValue"
+    :title="displayName"
+    :subtitle="`ID: ${cliente?.contato_id || ''}`"
+    size="xl"
+    :scrollable="false"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <!-- Mobile: Tabs Navigation -->
+      <div class="sm:hidden border-b border-gray-100 bg-white z-20 flex-shrink-0">
+        <div class="flex">
+          <button
+            @click="activeTab = 'info'"
+            :class="[
+              'flex-1 py-3 text-xs font-medium transition-colors',
+              activeTab === 'info' 
+                ? 'text-primary border-b-2 border-primary' 
+                : 'text-gray-500'
+            ]"
+          >
+            Informações
+          </button>
+          <button
+            @click="activeTab = 'chat'"
+            :class="[
+              'flex-1 py-3 text-xs font-medium transition-colors',
+              activeTab === 'chat' 
+                ? 'text-primary border-b-2 border-primary' 
+                : 'text-gray-500'
+            ]"
+          >
+            Conversas
+            <span v-if="mensagens.length" class="ml-1 text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full">
+              {{ mensagens.length }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Layout -->
+      <div class="flex-1 flex flex-col sm:flex-row min-h-0 overflow-hidden">
+        <!-- Sidebar / Info Panel -->
+        <div 
+          :class="[
+            'sm:w-80 sm:border-r border-gray-100 overflow-y-auto bg-gray-50/50 flex-shrink-0',
+            activeTab === 'info' ? 'block' : 'hidden sm:block'
+          ]"
+        >
+          <div class="p-5 space-y-6">
+            <!-- Personal Info -->
+            <DetailSection title="Informações Pessoais">
+              <div class="space-y-3">
+                <DetailField label="E-mail" :value="cliente?.email" />
+                <DetailField label="Cidade" :value="cliente?.cidade" />
+                <DetailField v-if="cliente?.data_nascimento" label="Nascimento" :value="cliente.data_nascimento" />
+              </div>
+            </DetailSection>
+
+            <!-- Status -->
+            <DetailSection v-if="cliente?.sentimento || cliente?.urgencia || cliente?.fase_obra" title="Status">
+              <div class="space-y-3">
+                <DetailField v-if="cliente?.sentimento" label="Sentimento">
+                  <span :class="['inline-flex px-2 py-0.5 rounded-md text-xs font-medium', getSentimentoColor(cliente.sentimento)]">
+                    {{ cliente.sentimento }}
+                  </span>
+                </DetailField>
+                <DetailField v-if="cliente?.urgencia" label="Urgência" :value="cliente.urgencia" />
+                <DetailField v-if="cliente?.fase_obra" label="Fase da Obra" :value="cliente.fase_obra" />
+              </div>
+            </DetailSection>
+
+            <!-- Profile Summary -->
+            <DetailSection v-if="cliente?.resumo_perfil" title="Resumo">
+              <p class="text-sm text-gray-600 leading-relaxed">{{ cliente.resumo_perfil }}</p>
+            </DetailSection>
+
+            <!-- Tags -->
+            <DetailSection title="Interesses">
+              <div v-if="hasInteresses" class="flex flex-wrap gap-1.5">
+                <span 
+                  v-for="(item, idx) in cliente?.interesses" 
+                  :key="idx" 
+                  class="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium"
+                >
+                  {{ item }}
+                </span>
+              </div>
+              <p v-else class="text-xs text-gray-400">Nenhum interesse informado</p>
+            </DetailSection>
+
+            <DetailSection title="Objeções">
+              <div v-if="hasObjeccoes" class="flex flex-wrap gap-1.5">
+                <span 
+                  v-for="(item, idx) in cliente?.objeccoes" 
+                  :key="idx" 
+                  class="px-2 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-medium"
+                >
+                  {{ item }}
+                </span>
+              </div>
+              <p v-else class="text-xs text-gray-400">Nenhuma objeção informada</p>
+            </DetailSection>
+
+            <!-- Sales -->
+            <DetailSection title="Vendas">
+              <div v-if="loadingVendas" class="text-sm text-gray-400">Carregando...</div>
+              <div v-else-if="vendas.length === 0" class="text-sm text-gray-400">Nenhuma venda</div>
+              <div v-else class="space-y-2">
+                <div 
+                  v-for="venda in vendas" 
+                  :key="venda.id" 
+                  class="bg-white rounded-lg border border-gray-100 p-3"
+                >
+                  <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(venda.valor_venda) }}</p>
+                  <p v-if="venda.vendedor" class="text-xs text-gray-500">{{ venda.vendedor }}</p>
+                  <p class="text-[10px] text-gray-400 mt-1">{{ formatDate(venda.created_at) }}</p>
+                </div>
+              </div>
+            </DetailSection>
+          </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div 
+          :class="[
+            'flex-1 flex flex-col min-h-0 bg-white',
+            activeTab === 'chat' ? 'flex' : 'hidden sm:flex'
+          ]"
+        >
+          <!-- Desktop Chat Header -->
+          <div class="hidden sm:block px-5 py-3 border-b border-gray-100 flex-shrink-0">
+            <h3 class="text-sm font-semibold text-gray-900">Histórico de Conversas</h3>
+            <p class="text-xs text-gray-400">{{ mensagens.length }} mensagens</p>
           </div>
 
-          <!-- Content -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Sidebar - Cliente Info -->
-            <div class="w-80 border-r border-gray-200 overflow-y-auto bg-gray-50 p-6 space-y-6">
-              <div>
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Informações Pessoais</h3>
-                <div class="space-y-3">
-                  <div v-if="cliente?.email">
-                    <p class="text-xs text-gray-500">E-mail</p>
-                    <p class="text-sm font-medium text-gray-900">{{ cliente.email }}</p>
-                  </div>
-                  <div v-if="cliente?.cidade">
-                    <p class="text-xs text-gray-500">Cidade</p>
-                    <p class="text-sm font-medium text-gray-900">{{ cliente.cidade }}</p>
-                  </div>
-                  <div v-if="cliente?.data_nascimento">
-                    <p class="text-xs text-gray-500">Data de Nascimento</p>
-                    <p class="text-sm font-medium text-gray-900">{{ cliente.data_nascimento }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="cliente?.sentimento || cliente?.urgencia || cliente?.fase_obra">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Status</h3>
-                <div class="space-y-3">
-                  <div v-if="cliente?.sentimento">
-                    <p class="text-xs text-gray-500">Sentimento</p>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="getSentimentoColor(cliente.sentimento)">
-                      {{ cliente.sentimento }}
-                    </span>
-                  </div>
-                  <div v-if="cliente?.urgencia">
-                    <p class="text-xs text-gray-500">Urgência</p>
-                    <p class="text-sm font-medium text-gray-900">{{ cliente.urgencia }}</p>
-                  </div>
-                  <div v-if="cliente?.fase_obra">
-                    <p class="text-xs text-gray-500">Fase da Obra</p>
-                    <p class="text-sm font-medium text-gray-900">{{ cliente.fase_obra }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="cliente?.resumo_perfil">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Resumo do Perfil</h3>
-                <p class="text-sm text-gray-700 leading-relaxed">{{ cliente.resumo_perfil }}</p>
-              </div>
-
-              <div v-if="cliente?.interesses && Array.isArray(cliente.interesses) && cliente.interesses.length > 0">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Interesses</h3>
-                <div class="flex flex-wrap gap-2">
-                  <span v-for="(interesse, idx) in cliente.interesses" :key="idx" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ interesse }}
-                  </span>
-                </div>
-              </div>
-
-              <div v-if="cliente?.objeccoes && Array.isArray(cliente.objeccoes) && cliente.objeccoes.length > 0">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Objeções</h3>
-                <div class="flex flex-wrap gap-2">
-                  <span v-for="(objeccao, idx) in cliente.objeccoes" :key="idx" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                    {{ objeccao }}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Vendas</h3>
-                <div v-if="loadingVendas" class="text-sm text-gray-500">Carregando vendas...</div>
-                <div v-else-if="vendas.length === 0" class="text-sm text-gray-500">Nenhuma venda registrada</div>
-                <div v-else class="space-y-3">
-                  <div v-for="venda in vendas" :key="venda.id" class="bg-white rounded-lg border border-gray-200 p-3">
-                    <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(venda.valor_venda) }}</p>
-                    <p v-if="venda.vendedor" class="text-xs text-gray-500">Vendedor: {{ venda.vendedor }}</p>
-                    <p class="text-xs text-gray-400">{{ new Date(venda.created_at).toLocaleString('pt-BR') }}</p>
-                  </div>
-                </div>
-              </div>
+          <!-- Messages -->
+          <div v-if="loadingMensagens" class="flex-1 flex items-center justify-center p-8">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-3"></div>
+              <p class="text-sm text-gray-400">Carregando...</p>
             </div>
+          </div>
 
-            <!-- Chat Area -->
-            <div class="flex-1 flex flex-col bg-gray-50">
-              <!-- Chat Header -->
-              <div class="px-6 py-4 bg-white border-b border-gray-200">
-                <h3 class="font-semibold text-gray-900">Histórico de Conversas</h3>
-                <p class="text-xs text-gray-500 mt-1">{{ mensagens.length }} mensagens</p>
+          <div v-else-if="mensagens.length === 0" class="flex-1 flex items-center justify-center p-8">
+            <div class="text-center">
+              <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
               </div>
-
-              <!-- Messages -->
-              <div v-if="loadingMensagens" class="flex-1 flex items-center justify-center">
-                <div class="text-center">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p class="text-sm text-gray-500">Carregando mensagens...</p>
-                </div>
-              </div>
-
-              <div v-else-if="mensagens.length === 0" class="flex-1 flex items-center justify-center">
-                <div class="text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-gray-300 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                  </svg>
-                  <p class="text-sm text-gray-500">Nenhuma mensagem encontrada</p>
-                </div>
-              </div>
-
-              <div v-else ref="messagesContainer" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                <ChatMessage
-                  v-for="message in mensagens"
-                  :key="message.id"
-                  :message="message"
-                />
-              </div>
+              <p class="text-sm text-gray-400">Sem mensagens</p>
             </div>
+          </div>
+
+          <div v-else ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 touch-pan-y">
+            <ChatMessage
+              v-for="message in mensagens"
+              :key="message.id"
+              :message="message"
+            />
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </ModalBase>
 </template>
 
 <script setup lang="ts">
@@ -145,6 +173,9 @@ import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
 import type { HistoricoMsg } from '~~/shared/types/HistoricoMsg'
 import type { HistoricoVenda } from '~~/shared/types/HistoricoVenda'
 import { useClientes } from '~/composables/useClientes'
+import ModalBase from '~/components/ModalBase.vue'
+import DetailSection from '~/components/DetailSection.vue'
+import DetailField from '~/components/DetailField.vue'
 import ChatMessage from '~/components/ChatMessage.vue'
 
 const props = defineProps<{
@@ -163,40 +194,50 @@ const vendas = ref<HistoricoVenda[]>([])
 const loadingMensagens = ref(false)
 const loadingVendas = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
+const activeTab = ref<'info' | 'chat'>('info')
 
 const displayName = computed(() => {
   if (!props.cliente) return ''
   return props.cliente.nome || props.cliente.nome_social || 'Sem nome'
 })
 
+const hasInteresses = computed(() => {
+  return props.cliente?.interesses && Array.isArray(props.cliente.interesses) && props.cliente.interesses.length > 0
+})
+
+const hasObjeccoes = computed(() => {
+  return props.cliente?.objeccoes && Array.isArray(props.cliente.objeccoes) && props.cliente.objeccoes.length > 0
+})
+
 const getSentimentoColor = (sentimento: string) => {
   const colors: Record<string, string> = {
-    'positivo': 'bg-green-100 text-green-800',
-    'neutro': 'bg-gray-100 text-gray-800',
-    'negativo': 'bg-red-100 text-red-800'
+    'positivo': 'bg-green-50 text-green-700',
+    'neutro': 'bg-gray-100 text-gray-700',
+    'negativo': 'bg-red-50 text-red-700'
   }
-  return colors[sentimento.toLowerCase()] || 'bg-gray-100 text-gray-800'
-}
-
-const close = () => {
-  emit('update:modelValue', false)
+  return colors[sentimento.toLowerCase()] || 'bg-gray-100 text-gray-700'
 }
 
 const formatCurrency = (value: number | null) => {
   if (!value && value !== 0) return '-'
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
 const loadMensagens = async () => {
   if (!props.cliente) return
-
   try {
     loadingMensagens.value = true
     mensagens.value = await getMensagensByContatoId(props.cliente.contato_id)
-    
     await nextTick()
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
@@ -210,7 +251,6 @@ const loadMensagens = async () => {
 
 const loadVendas = async () => {
   if (!props.cliente) return
-
   try {
     loadingVendas.value = true
     vendas.value = await getVendasByContatoId(props.cliente.contato_id)
@@ -223,6 +263,7 @@ const loadVendas = async () => {
 
 watch(() => props.modelValue, (newValue) => {
   if (newValue && props.cliente) {
+    activeTab.value = 'info'
     loadMensagens()
     loadVendas()
   } else {
@@ -231,15 +272,3 @@ watch(() => props.modelValue, (newValue) => {
   }
 }, { immediate: true })
 </script>
-
-<style scoped>
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-</style>

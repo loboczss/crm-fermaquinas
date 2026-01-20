@@ -1,154 +1,169 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="close">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
-            <div>
-              <h2 class="text-xl font-bold text-gray-900">Editar Cliente</h2>
-              <p class="text-sm text-gray-500">ID: {{ cliente?.contato_id }}</p>
-            </div>
-            <button
-              @click="close"
-              class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
+  <ModalBase
+    :model-value="modelValue"
+    title="Editar Cliente"
+    :subtitle="`ID: ${cliente?.contato_id || ''}`"
+    size="md"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
+    <form class="p-5 space-y-5" @submit.prevent="handleSave">
+      <!-- Basic Info Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <BaseInput
+          id="cliente-edit-nome"
+          label="Nome"
+          placeholder="Nome completo"
+          v-model="form.nome"
+        />
+        <BaseInput
+          id="cliente-edit-nome-social"
+          label="Nome Social"
+          placeholder="Nome social (opcional)"
+          v-model="form.nome_social"
+        />
+      </div>
 
-          <form class="flex-1 overflow-y-auto p-6 space-y-6" @submit.prevent="handleSave">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <BaseInput
-                id="cliente-edit-nome"
-                label="Nome"
-                placeholder="Nome"
-                v-model="form.nome"
-              />
-              <BaseInput
-                id="cliente-edit-nome-social"
-                label="Nome Social"
-                placeholder="Nome social"
-                v-model="form.nome_social"
-              />
-              <BaseInput
-                id="cliente-edit-email"
-                label="E-mail"
-                type="email"
-                placeholder="email@exemplo.com"
-                v-model="form.email"
-              />
-              <BaseInput
-                id="cliente-edit-cidade"
-                label="Cidade"
-                placeholder="Cidade"
-                v-model="form.cidade"
-              />
-              <BaseInput
-                id="cliente-edit-data"
-                label="Data de Nascimento"
-                type="date"
-                v-model="form.data_nascimento"
-              />
-              <BaseInput
-                id="cliente-edit-sentimento"
-                label="Sentimento"
-                placeholder="positivo, neutro, negativo"
-                v-model="form.sentimento"
-              />
-              <BaseInput
-                id="cliente-edit-urgencia"
-                label="Urgência"
-                placeholder="alta, média, baixa"
-                v-model="form.urgencia"
-              />
-              <BaseInput
-                id="cliente-edit-fase"
-                label="Fase da Obra"
-                placeholder="fase da obra"
-                v-model="form.fase_obra"
-              />
-            </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <BaseInput
+          id="cliente-edit-email"
+          label="E-mail"
+          type="email"
+          placeholder="email@exemplo.com"
+          v-model="form.email"
+        />
+        <BaseInput
+          id="cliente-edit-cidade"
+          label="Cidade"
+          placeholder="Cidade"
+          v-model="form.cidade"
+        />
+      </div>
 
-            <div class="space-y-4">
-              <div class="space-y-1.5 w-full">
-                <label for="cliente-edit-resumo" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1">
-                  Resumo do Perfil
-                </label>
-                <textarea
-                  id="cliente-edit-resumo"
-                  v-model="form.resumo_perfil"
-                  rows="4"
-                  class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-transparent placeholder:text-gray-400 font-medium"
-                  placeholder="Resumo do perfil"
-                />
-              </div>
-
-              <div class="space-y-1.5 w-full">
-                <label for="cliente-edit-interesses" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1">
-                  Interesses (separados por vírgula)
-                </label>
-                <textarea
-                  id="cliente-edit-interesses"
-                  v-model="form.interesses"
-                  rows="3"
-                  class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-transparent placeholder:text-gray-400 font-medium"
-                  placeholder="Interesse 1, Interesse 2"
-                />
-              </div>
-
-              <div class="space-y-1.5 w-full">
-                <label for="cliente-edit-objeccoes" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1">
-                  Objeções (separadas por vírgula)
-                </label>
-                <textarea
-                  id="cliente-edit-objeccoes"
-                  v-model="form.objeccoes"
-                  rows="3"
-                  class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-transparent placeholder:text-gray-400 font-medium"
-                  placeholder="Objeção 1, Objeção 2"
-                />
-              </div>
-
-              <div class="space-y-1.5 w-full">
-                <label for="cliente-edit-compras" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1">
-                  Compras do Cliente (separadas por vírgula)
-                </label>
-                <textarea
-                  id="cliente-edit-compras"
-                  v-model="form.compras_cliente"
-                  rows="3"
-                  class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-transparent placeholder:text-gray-400 font-medium"
-                  placeholder="Compra 1, Compra 2"
-                />
-              </div>
-            </div>
-
-            <div v-if="error" class="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600">
-              {{ error }}
-            </div>
-          </form>
-
-          <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3 bg-gray-50">
-            <BaseButton variant="ghost" size="md" @click="close">
-              Cancelar
-            </BaseButton>
-            <BaseButton variant="primary" size="md" :disabled="loading" @click="handleSave">
-              {{ loading ? 'Salvando...' : 'Salvar alterações' }}
-            </BaseButton>
-          </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <BaseInput
+          id="cliente-edit-data"
+          label="Data de Nascimento"
+          type="date"
+          v-model="form.data_nascimento"
+        />
+        <div class="space-y-1.5">
+          <label for="cliente-edit-sentimento" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1 block">
+            Sentimento
+          </label>
+          <select
+            id="cliente-edit-sentimento"
+            v-model="form.sentimento"
+            class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="">Selecione</option>
+            <option value="positivo">Positivo</option>
+            <option value="neutro">Neutro</option>
+            <option value="negativo">Negativo</option>
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label for="cliente-edit-urgencia" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1 block">
+            Urgência
+          </label>
+          <select
+            id="cliente-edit-urgencia"
+            v-model="form.urgencia"
+            class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="">Selecione</option>
+            <option value="alta">Alta</option>
+            <option value="média">Média</option>
+            <option value="baixa">Baixa</option>
+          </select>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <BaseInput
+        id="cliente-edit-fase"
+        label="Fase da Obra"
+        placeholder="Ex: Planejamento, Execução, Finalização"
+        v-model="form.fase_obra"
+      />
+
+      <!-- Textarea Fields -->
+      <div class="space-y-1.5">
+        <label for="cliente-edit-resumo" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1 block">
+          Resumo do Perfil
+        </label>
+        <textarea
+          id="cliente-edit-resumo"
+          v-model="form.resumo_perfil"
+          rows="3"
+          class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 placeholder:text-gray-400 resize-none"
+          placeholder="Breve descrição do perfil do cliente"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label for="cliente-edit-interesses" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1 block">
+            Interesses
+          </label>
+          <textarea
+            id="cliente-edit-interesses"
+            v-model="form.interesses"
+            rows="2"
+            class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 placeholder:text-gray-400 resize-none"
+            placeholder="Separados por vírgula"
+          />
+        </div>
+        <div class="space-y-1.5">
+          <label for="cliente-edit-objeccoes" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1 block">
+            Objeções
+          </label>
+          <textarea
+            id="cliente-edit-objeccoes"
+            v-model="form.objeccoes"
+            rows="2"
+            class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 placeholder:text-gray-400 resize-none"
+            placeholder="Separadas por vírgula"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="cliente-edit-compras" class="text-xs font-semibold uppercase tracking-wider text-gray-500 ml-1 block">
+          Compras do Cliente
+        </label>
+        <textarea
+          id="cliente-edit-compras"
+          v-model="form.compras_cliente"
+          rows="2"
+          class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm text-gray-900 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 placeholder:text-gray-400 resize-none"
+          placeholder="Separadas por vírgula"
+        />
+      </div>
+
+      <!-- Error -->
+      <div v-if="error" class="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600">
+        {{ error }}
+      </div>
+    </form>
+
+    <!-- Footer -->
+    <template #footer>
+      <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+        <BaseButton variant="ghost" size="md" @click="close" class="w-full sm:w-auto">
+          Cancelar
+        </BaseButton>
+        <BaseButton variant="primary" size="md" :disabled="loading" @click="handleSave" class="w-full sm:w-auto">
+          {{ loading ? 'Salvando...' : 'Salvar' }}
+        </BaseButton>
+      </div>
+    </template>
+  </ModalBase>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from '#imports'
 import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
 import { useClientes } from '~/composables/useClientes'
+import ModalBase from '~/components/ModalBase.vue'
 import BaseButton from '~/components/BaseButton.vue'
 import BaseInput from '~/components/BaseInput.vue'
 
@@ -192,10 +207,7 @@ const toCsv = (value: any[] | null) => {
 }
 
 const toArray = (value: string) => {
-  const items = value
-    .split(',')
-    .map(item => item.trim())
-    .filter(Boolean)
+  const items = value.split(',').map(item => item.trim()).filter(Boolean)
   return items.length > 0 ? items : null
 }
 
@@ -250,19 +262,8 @@ const handleSave = async () => {
 
 watch(() => props.modelValue, (value) => {
   if (value) {
+    error.value = ''
     fillForm()
   }
 })
 </script>
-
-<style scoped>
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-</style>

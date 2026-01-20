@@ -1,133 +1,111 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="close">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <!-- Header -->
-          <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
-            <div>
-              <h2 class="text-xl font-bold text-gray-900">
-                {{ isEdit ? 'Editar Venda' : 'Nova Venda' }}
-              </h2>
-              <p v-if="isEdit" class="text-sm text-gray-500">
-                ID: {{ venda?.id }}
-              </p>
-            </div>
-            <button
-              @click="close"
-              class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+  <ModalBase
+    :model-value="modelValue"
+    :title="isEdit ? 'Editar Venda' : 'Nova Venda'"
+    :subtitle="isEdit ? `ID: ${venda?.id}` : 'Preencha os dados da venda'"
+    size="md"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
+    <!-- Content -->
+    <form id="venda-form" class="p-5 space-y-5" @submit.prevent="handleSave">
+      <div class="space-y-4">
+        <div class="relative">
+          <BaseInput
+            id="venda-contato-id"
+            label="ID do Contato"
+            placeholder="ID do contato (obrigatório)"
+            v-model="form.contato_id"
+            required
+            @focus="showDropdown = true"
+            @input="showDropdown = true"
+            @blur="handleBlur"
+            autocomplete="off"
+          />
+          
+          <!-- Custom Dropdown Results -->
+          <div v-if="showDropdown && filteredClientes.length > 0" 
+               class="absolute z-50 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            <div 
+              v-for="c in filteredClientes" 
+              :key="c.contato_id"
+              @mousedown="selectCliente(c)"
+              class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer flex flex-col transition-colors border-b border-gray-50 last:border-0"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+              <span class="text-sm font-bold text-gray-900">{{ c.contato_id }}</span>
+              <span class="text-xs text-gray-500">{{ c.nome }}</span>
+            </div>
           </div>
+        </div>
 
-          <!-- Form -->
-          <form class="flex-1 overflow-y-auto p-6 space-y-6" @submit.prevent="handleSave">
-            <div class="space-y-4">
-              <BaseInput
-                id="venda-cliente"
-                label="Nome do Cliente"
-                placeholder="Ex: João Silva"
-                v-model="form.contact_name"
-                required
-              />
-              
-              <BaseInput
-                id="venda-vendedor"
-                label="Vendedor"
-                placeholder="Nome do vendedor"
-                v-model="form.vendedor"
-              />
+        <BaseInput
+          id="venda-cliente"
+          label="Nome do Cliente"
+          placeholder="Ex: João Silva"
+          v-model="form.contact_name"
+          required
+        />
+        
+        <BaseInput
+          id="venda-vendedor"
+          label="Vendedor"
+          placeholder="Nome do vendedor"
+          v-model="form.vendedor"
+        />
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <BaseInput
-                  id="venda-valor"
-                  label="Valor da Venda (R$)"
-                  type="number"
-                  step="0.01"
-                  placeholder="0,00"
-                  v-model.number="form.valor_venda"
-                  required
-                />
-                
-                <BaseInput
-                  id="venda-data"
-                  label="Data da Venda"
-                  type="date"
-                  v-model="form.created_at"
-                  required
-                />
-              </div>
-
-              <div class="relative">
-                <BaseInput
-                  id="venda-contato-id"
-                  label="ID do Contato"
-                  placeholder="ID do contato (obrigatório)"
-                  v-model="form.contato_id"
-                  required
-                  @focus="showDropdown = true"
-                  @input="showDropdown = true"
-                  @blur="handleBlur"
-                  autocomplete="off"
-                />
-                
-                <!-- Custom Dropdown Results -->
-                <div v-if="showDropdown && filteredClientes.length > 0" 
-                     class="absolute z-50 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                  <div 
-                    v-for="c in filteredClientes" 
-                    :key="c.contato_id"
-                    @mousedown="selectCliente(c)"
-                    class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer flex flex-col transition-colors border-b border-gray-50 last:border-0"
-                  >
-                    <span class="text-sm font-bold text-gray-900">{{ c.contato_id }}</span>
-                    <span class="text-xs text-gray-500">{{ c.nome }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="error" class="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">
-              {{ error }}
-            </div>
-
-            <!-- Footer Buttons -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-              <button
-                type="button"
-                @click="close"
-                class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                :disabled="loading"
-                class="px-6 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <svg v-if="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
-              </button>
-            </div>
-          </form>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <BaseInput
+            id="venda-valor"
+            label="Valor da Venda (R$)"
+            type="number"
+            step="0.01"
+            placeholder="0,00"
+            v-model.number="form.valor_venda"
+            required
+          />
+          
+          <BaseInput
+            id="venda-data"
+            label="Data da Venda"
+            type="date"
+            v-model="form.created_at"
+            required
+          />
         </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <div v-if="error" class="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">
+        {{ error }}
+      </div>
+    </form>
+
+    <!-- Footer -->
+    <template #footer>
+      <div class="flex items-center justify-end gap-3">
+        <BaseButton
+          variant="secondary"
+          @click="close"
+        >
+          Cancelar
+        </BaseButton>
+        <BaseButton
+          type="submit"
+          form="venda-form"
+          :loading="loading"
+        >
+          {{ isEdit ? 'Salvar Alterações' : 'Criar Venda' }}
+        </BaseButton>
+      </div>
+    </template>
+  </ModalBase>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue'
+import { ref, reactive, watch, computed } from '#imports'
 import type { HistoricoVenda } from '~~/shared/types/HistoricoVenda'
 import { useClientes } from '~~/app/composables/useClientes'
 import BaseInput from '~/components/BaseInput.vue'
+import BaseButton from '~/components/BaseButton.vue'
+import ModalBase from '~/components/ModalBase.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -155,7 +133,7 @@ const form = reactive({
 
 const filteredClientes = computed(() => {
   const query = (form.contato_id || '').toString().toLowerCase().trim()
-  if (!query) return clientesList.value.slice(0, 10)
+  if (!query) return []
   
   return clientesList.value
     .filter(c => {
@@ -173,7 +151,6 @@ const selectCliente = (c: { nome: string, contato_id: string }) => {
 }
 
 const handleBlur = () => {
-  // Delay to allow mousedown to trigger first
   setTimeout(() => {
     showDropdown.value = false
   }, 200)
@@ -187,7 +164,6 @@ const fetchClientes = async () => {
   }
 }
 
-// Reset or init form when modal opens/venda changes
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     error.value = null
@@ -196,7 +172,6 @@ watch(() => props.modelValue, (isOpen) => {
       form.contact_name = props.venda.contact_name || ''
       form.vendedor = props.venda.vendedor || ''
       form.valor_venda = props.venda.valor_venda || 0
-      // Format date for <input type="date"> (YYYY-MM-DD)
       if (props.venda.created_at) {
         form.created_at = new Date(props.venda.created_at).toISOString().split('T')[0]
       } else {
@@ -204,7 +179,6 @@ watch(() => props.modelValue, (isOpen) => {
       }
       form.contato_id = props.venda.contato_id || ''
     } else {
-      // Reset form for create mode
       form.contact_name = ''
       form.vendedor = ''
       form.valor_venda = 0
@@ -214,7 +188,6 @@ watch(() => props.modelValue, (isOpen) => {
   }
 })
 
-// Auto-fill name when contato_id is selected from list
 watch(() => form.contato_id, (newId) => {
   if (!isEdit.value && newId) {
     const found = clientesList.value.find(c => 
@@ -235,27 +208,21 @@ const handleSave = async () => {
   error.value = null
 
   try {
-    // 1. Verificar se o cliente já existe na crm_evastur
-    // Se não existir, criar um novo cliente com o contato_id e contact_name informados
     let clienteExistente = null
     try {
       clienteExistente = await getClienteByContatoId(form.contato_id)
     } catch (e) {
-      // Se der erro (provavelmente 406 Not Found ou similar se usar .single()), cliente não existe
       clienteExistente = null
     }
 
     if (!clienteExistente) {
-      // Criar cliente se não existir
       await createCliente({
         contato_id: form.contato_id,
         nome: form.contact_name,
-        // Você pode adicionar outros campos padrão aqui se necessário
         created_at: new Date().toISOString()
       })
     }
 
-    // 2. Salvar a venda
     const dataForVenda = {
       contact_name: form.contact_name,
       vendedor: form.vendedor,
@@ -281,15 +248,3 @@ const handleSave = async () => {
   }
 }
 </script>
-
-<style scoped>
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-</style>
