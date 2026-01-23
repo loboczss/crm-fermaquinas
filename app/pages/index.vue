@@ -11,10 +11,10 @@
 
         <div class="flex gap-4 justify-center">
           <button @click="handleLogin" class="bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-3 rounded-xl transition-colors duration-200">
-            Começar Agora
+            Faça login
           </button>
           <button @click="handleRegister" class="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-8 py-3 rounded-xl transition-colors duration-200">
-            Saiba Mais
+            Cadastre-se
           </button>
         </div>
       </div>
