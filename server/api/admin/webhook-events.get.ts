@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   try {
     const { data, error } = await supabase
       .from('eventos_webhook')
-      .select('id, created_at, nome_evento, horario_evento, acao_evento')
+      .select('id, created_at, nome_evento, horario_evento, acao_evento, evento_ativo')
       .order('created_at', { ascending: false })
 
     if (error) {

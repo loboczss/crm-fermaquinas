@@ -1,6 +1,8 @@
+
 import { ref } from '#imports'
 import type { WebhookEvent } from '~~/shared/types/WebhookEvent'
 import type { WebhookEventType } from '~~/shared/constants/webhookEvents'
+import { buildGenericWebhookPayload } from '~/utils/webhookPayload'
 
 export const useWebhookEvents = () => {
   const events = ref<WebhookEvent[]>([])
@@ -28,13 +30,13 @@ export const useWebhookEvents = () => {
     error.value = null
 
     try {
-      const response = await $fetch<{ data: WebhookEvent }>('/api/admin/webhook-events', {
+      await $fetch<{ data: WebhookEvent }>('/api/admin/webhook-events', {
         method: 'POST',
         body: payload
       })
 
-      events.value = [response.data, ...events.value]
-      return response.data
+      // Recarregar lista completa para garantir sincronização
+      await fetchEvents()
     } catch (e: any) {
       error.value = e.message || 'Erro ao criar evento'
       throw e
@@ -80,15 +82,19 @@ export const useWebhookEvents = () => {
       saving.value = false
     }
   }
-
-  const triggerEvent = async (eventType: WebhookEventType) => {
+  const triggerEvent = async (eventType: WebhookEventType, nome: string, data: string, contato_id: string) => {
     saving.value = true
     error.value = null
-
     try {
+      const payload = buildGenericWebhookPayload({
+        tipo_evento: eventType,
+        nome,
+        data,
+        contato_id
+      })
       await $fetch('/api/admin/webhook-events/trigger', {
         method: 'POST',
-        body: { eventType }
+        body: payload
       })
     } catch (e: any) {
       error.value = e.message || 'Erro ao disparar evento'

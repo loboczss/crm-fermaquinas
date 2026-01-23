@@ -39,10 +39,10 @@ export default defineEventHandler(async (event) => {
       .insert({
         nome_evento,
         horario_evento,
-        acao_evento: acao_evento || 'webhook'
+        acao_evento: acao_evento || 'webhook',
+        evento_ativo: acao_evento === 'webhook'
       })
-      .select('id, created_at, nome_evento, horario_evento, acao_evento')
-      .single()
+      .select('id, created_at, nome_evento, horario_evento, acao_evento, evento_ativo')
 
     if (error) {
       throw createError({
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data
+      data: data?.[0] || data
     }
   } catch (e: any) {
     throw createError({

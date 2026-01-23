@@ -47,10 +47,11 @@ export default defineEventHandler(async (event) => {
       .update({
         nome_evento,
         horario_evento,
-        acao_evento: acao_evento || 'webhook'
+        acao_evento: acao_evento || 'webhook',
+        evento_ativo: acao_evento === 'webhook'
       })
       .eq('id', id)
-      .select('id, created_at, nome_evento, horario_evento, acao_evento')
+      .select('id, created_at, nome_evento, horario_evento, acao_evento, evento_ativo')
       .single()
 
     if (error) {

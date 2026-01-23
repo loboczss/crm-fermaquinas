@@ -15,6 +15,16 @@ const formatDate = (date: Date) => {
   return `${year}-${month}-${day}`
 }
 
+const formatDateBr = (dateInput: string | Date | null | undefined) => {
+  if (!dateInput) return ''
+  const dateObj = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+  const tzDate = new Date(dateObj.toLocaleString('en-US', { timeZone: TIME_ZONE }))
+  const day = String(tzDate.getDate()).padStart(2, '0')
+  const month = String(tzDate.getMonth() + 1).padStart(2, '0')
+  const year = tzDate.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 const addDays = (date: Date, days: number) => {
   const copy = new Date(date)
   copy.setDate(copy.getDate() + days)
@@ -111,7 +121,8 @@ const triggerEmbarqueWebhooks = async (startDate: Date, eventType: string) => {
   for (const item of embarques || []) {
     const nome = item.contact_name || 'Sem nome'
     const contato_id = item.contato_id || 'unknown'
-    const data_embarque = item.embarque || ''
+    const rawDataEmbarque = item.embarque || ''
+    const data_embarque = formatDateBr(rawDataEmbarque)
 
     const result = await sendToWebhook({
       tipo_evento: eventType,
@@ -120,7 +131,7 @@ const triggerEmbarqueWebhooks = async (startDate: Date, eventType: string) => {
       data_embarque,
       fornecedor: item.fornecedor || '',
       observacoes: [item.obs_pendencias, item.observacao].filter(Boolean).join(' | '),
-      data_referencia: start
+      data_referencia: formatDateBr(start)
     })
 
     results.push({ nome, ...result })

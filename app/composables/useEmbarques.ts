@@ -1,5 +1,7 @@
+
 import { ref } from '#imports'
 import { useSupabaseClient } from '#imports'
+import { buildEmbarqueWebhookPayload } from '~/utils/webhookPayload'
 
 export interface EmbarqueItem {
     id: number
@@ -102,14 +104,17 @@ export const useEmbarques = () => {
         const dayStr = String(day).padStart(2, '0')
         return !!embarquesByDay.value[dayStr] && embarquesByDay.value[dayStr].length > 0
     }
-
-    const triggerWebhook = async (nome: string, data_embarque: string, observacoes: string) => {
+    const triggerWebhook = async (nome: string, data_embarque: string, contato_id: string) => {
         try {
+            const payload = buildEmbarqueWebhookPayload({
+                nome,
+                data: data_embarque,
+                contato_id
+            })
             await $fetch('/api/admin/trigger-embarque-webhook', {
                 method: 'POST',
-                body: { nome, data_embarque, observacoes }
+                body: payload
             })
-
             return { success: true }
         } catch (e: any) {
             console.error('Error triggering webhook:', e)

@@ -1,6 +1,8 @@
+
 import { ref, computed } from '#imports'
 import { useSupabaseClient } from '#imports'
 import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
+import { buildBirthdayWebhookPayload } from '~/utils/webhookPayload'
 
 export const useCalendario = () => {
     const supabase = useSupabaseClient()
@@ -30,18 +32,17 @@ export const useCalendario = () => {
             loading.value = false
         }
     }
-
     const triggerWebhook = async (nome: string, dia_aniversario: string, contato_id: string) => {
         try {
+            const payload = buildBirthdayWebhookPayload({
+                nome,
+                data: dia_aniversario,
+                contato_id
+            })
             await $fetch('/api/admin/trigger-birthday-webhook', {
                 method: 'POST',
-                body: {
-                    nome,
-                    dia_aniversario,
-                    contato_id
-                }
+                body: payload
             })
-
             return { success: true }
         } catch (e: any) {
             console.error('Error triggering webhook:', e)

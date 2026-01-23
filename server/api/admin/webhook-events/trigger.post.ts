@@ -4,7 +4,12 @@ import { triggerWebhookEvent } from '../../../utils/webhook-events'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { eventType, date } = body
+
+    // Accept both legacy and new payload shapes:
+    // legacy: { eventType, date }
+    // new: { tipo_evento, data, nome, contato_id, ... }
+    const eventType = body.eventType || body.tipo_evento || body.nome_evento
+    const date = body.date || body.data || body.data_referencia || null
 
     console.log('[Trigger Webhook] Recebido:', { eventType, date })
 
@@ -20,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('[Trigger Webhook] Disparando evento:', eventType)
     const results = await triggerWebhookEvent(eventType, date)
-    
+
     console.log('[Trigger Webhook] Resultados:', results)
     return { success: true, results }
   } catch (e: any) {

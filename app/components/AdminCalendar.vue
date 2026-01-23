@@ -1,91 +1,103 @@
 <template>
   <div id="admin-calendar" class="w-full">
-    <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+    <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <!-- Calendar Header -->
-      <div class="px-6 py-5 flex items-center justify-between bg-white border-b border-gray-50">
-        <div class="flex items-center gap-4">
-          <h3 class="text-xl font-bold text-gray-900 tracking-tight" id="calendar-month-title">
-            {{ monthName }} <span class="text-gray-300 font-medium">{{ year }}</span>
-          </h3>
+      <div class="px-5 py-4 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <IconCalendar :size="20" color="currentColor" class="text-primary" />
+          <div>
+            <h3 class="text-lg font-bold text-gray-900" id="calendar-month-title">
+              {{ monthName }} <span class="text-gray-400 font-medium">{{ year }}</span>
+            </h3>
+            <p v-if="totalEventsInMonth > 0" class="text-xs text-gray-500 mt-0.5">
+              {{ totalEventsInMonth }} evento(s) este mês
+            </p>
+          </div>
         </div>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2">
           <button
             @click="$emit('prev-month')"
-            class="p-2 hover:bg-gray-50 rounded-xl transition-all text-gray-400 hover:text-primary active:scale-90"
+            class="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-primary border border-transparent hover:border-gray-200"
             id="calendar-prev-month"
             aria-label="Mês anterior"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
+            <IconChevronLeft :size="18" color="currentColor" />
           </button>
 
           <button
             @click="$emit('next-month')"
-            class="p-2 hover:bg-gray-50 rounded-xl transition-all text-gray-400 hover:text-primary active:scale-90"
+            class="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-primary border border-transparent hover:border-gray-200"
             id="calendar-next-month"
             aria-label="Próximo mês"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
+            <IconChevronRight :size="18" color="currentColor" />
           </button>
         </div>
       </div>
 
       <!-- Days of Week -->
-      <div class="grid grid-cols-7 bg-gray-50/50">
+      <div class="grid grid-cols-7 bg-gray-50 border-b border-gray-100">
         <div 
           v-for="day in daysOfWeek" 
           :key="day"
-          class="py-3 text-center text-[11px] font-bold uppercase tracking-[0.1em] text-gray-400"
+          class="py-2.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-500"
         >
           {{ day }}
         </div>
       </div>
 
       <!-- Calendar Grid -->
-      <div class="grid grid-cols-7 border-t border-gray-50">
+      <div class="grid grid-cols-7">
         <div
           v-for="(day, index) in calendarDays"
           :key="index"
           :class="[
-            'relative aspect-square p-2 border-r border-b border-gray-50 transition-all duration-300 group',
-            day.isCurrentMonth ? 'bg-white hover:z-10 hover:shadow-2xl hover:shadow-primary/10' : 'bg-gray-50/30',
-            day.hasEvent && day.isCurrentMonth ? 'cursor-pointer' : '',
+            'relative aspect-square p-3 border-r border-b border-gray-100 transition-all group',
+            day.isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50/50',
+            day.hasEvent && day.isCurrentMonth ? 'cursor-pointer hover:shadow-inner' : '',
+            index % 7 === 6 ? 'border-r-0' : '',
+            index >= 35 ? 'border-b-0' : ''
           ]"
           @click="day.hasEvent && day.isCurrentMonth ? handleDayClick(day.date) : null"
         >
-          <!-- Day Number -->
-          <div class="flex flex-col h-full">
+          <!-- Day Content -->
+          <div class="flex flex-col h-full justify-between">
             <div class="flex justify-between items-start">
               <span 
                 :class="[
-                  'text-sm transition-all',
-                  day.isToday ? 'w-7 h-7 flex items-center justify-center bg-primary text-white rounded-lg font-bold shadow-lg shadow-primary/20' : 'font-semibold',
-                  !day.isCurrentMonth ? 'text-gray-200' : 'text-gray-500'
+                  'text-sm font-medium transition-all',
+                  day.isToday ? 'w-7 h-7 flex items-center justify-center bg-primary text-white rounded-lg font-bold shadow-md' : '',
+                  !day.isCurrentMonth ? 'text-gray-300' : day.isToday ? '' : 'text-gray-700'
                 ]"
               >
                 {{ day.date }}
               </span>
               
-              <!-- Indicator for Desktop/Events -->
-              <div v-if="day.hasEvent && day.isCurrentMonth" class="flex flex-col gap-0.5">
-                <span class="text-xs grayscale opacity-80 group-hover:opacity-100 transition-opacity">
-                  {{ highlightColor === 'birthday' ? '🎂' : '📦' }}
+              <!-- Event Count Badge -->
+              <div v-if="day.hasEvent && day.isCurrentMonth && day.eventCount > 0">
+                <span 
+                  :class="[
+                    'inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold',
+                    highlightColor === 'birthday' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
+                  ]"
+                >
+                  {{ day.eventCount }}
                 </span>
               </div>
             </div>
 
-            <!-- Modern Highlight Bar -->
-            <div v-if="day.hasEvent && day.isCurrentMonth" class="mt-auto">
-              <div 
+            <!-- Event Indicator Icon -->
+            <div v-if="day.hasEvent && day.isCurrentMonth" class="mt-auto flex items-center gap-1">
+              <component 
+                :is="highlightColor === 'birthday' ? IconCake : IconPlane" 
+                :size="14" 
+                :color="'currentColor'" 
                 :class="[
-                  'h-1 rounded-full w-full opacity-60 group-hover:opacity-100 transition-all',
-                  highlightColor === 'birthday' ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-gradient-to-r from-primary to-blue-400'
+                  'opacity-40 group-hover:opacity-100 transition-opacity',
+                  highlightColor === 'birthday' ? 'text-orange-500' : 'text-blue-500'
                 ]"
-              ></div>
+              />
             </div>
           </div>
         </div>
@@ -96,6 +108,11 @@
 
 <script setup lang="ts">
 import { computed } from '#imports'
+import IconCalendar from './IconCalendar.vue'
+import IconCake from './IconCake.vue'
+import IconPlane from './IconPlane.vue'
+import IconChevronLeft from './IconChevronLeft.vue'
+import IconChevronRight from './IconChevronRight.vue'
 
 const props = defineProps<{
   month: number
@@ -118,6 +135,10 @@ const monthNames = [
 ]
 
 const monthName = computed(() => monthNames[props.month - 1])
+
+const totalEventsInMonth = computed(() => {
+  return Object.values(props.eventsByDay).reduce((sum, count) => sum + count, 0)
+})
 
 const calendarDays = computed(() => {
   const firstDay = new Date(props.year, props.month - 1, 1)

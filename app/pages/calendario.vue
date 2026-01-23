@@ -1,45 +1,47 @@
 <template>
   <PageShell>
-    <div class="max-w-6xl mx-auto py-10 px-6">
-      <!-- Premium Header Section -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div>
-          <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
-            Calendário <span class="text-primary">Eva</span>
-          </h1>
-          <p class="text-lg text-gray-500 font-medium">Acompanhe momentos importantes e operações de embarque.</p>
+    <div class="max-w-7xl mx-auto py-8 px-6">
+      <!-- Header Section -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
+            <IconCalendar :size="24" color="white" />
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+              Calendário Eva
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Gerencie eventos, aniversários e embarques</p>
+          </div>
         </div>
 
-        <div class="relative group" id="calendar-selector">
+        <div class="relative" id="calendar-selector">
           <button
             @click.stop="dropdownOpen = !dropdownOpen"
-            class="flex items-center gap-4 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl hover:border-primary/20 transition-all text-sm font-bold text-gray-700 min-w-[260px] shadow-sm hover:shadow-xl hover:shadow-primary/5 active:scale-95"
+            class="flex items-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-xl hover:border-primary transition-all text-sm font-semibold text-gray-700 min-w-[240px] shadow-sm hover:shadow-md"
             id="calendar-dropdown-btn"
           >
-            <span class="text-2xl">{{ selectedCalendarIcon }}</span>
-            <span class="flex-1 text-left tracking-tight">{{ selectedCalendarLabel }}</span>
-            <svg 
-              :class="['w-5 h-5 text-gray-300 transition-transform duration-300', dropdownOpen ? 'rotate-180' : '']"
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m19 9-7 7-7-7"/>
-            </svg>
+            <component :is="selectedCalendarIcon" :size="20" :color="'currentColor'" class="text-primary" />
+            <span class="flex-1 text-left">{{ selectedCalendarLabel }}</span>
+            <IconChevronDown 
+              :size="18" 
+              :color="'currentColor'" 
+              :class="['text-gray-400 transition-transform duration-200', dropdownOpen ? 'rotate-180' : '']"
+            />
           </button>
 
           <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="transform scale-95 opacity-0 -translate-y-2"
-            enter-to-class="transform scale-100 opacity-100 translate-y-0"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="transform scale-100 opacity-100 translate-y-0"
-            leave-to-class="transform scale-95 opacity-0 -translate-y-2"
+            enter-active-class="transition duration-150 ease-out"
+            enter-from-class="transform scale-95 opacity-0"
+            enter-to-class="transform scale-100 opacity-100"
+            leave-active-class="transition duration-100 ease-in"
+            leave-from-class="transform scale-100 opacity-100"
+            leave-to-class="transform scale-95 opacity-0"
           >
             <div
               v-if="dropdownOpen"
               v-click-outside="() => dropdownOpen = false"
-              class="absolute top-full mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden z-20 backdrop-blur-xl bg-white/90"
+              class="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-20"
               id="calendar-dropdown-menu"
             >
               <button
@@ -47,15 +49,13 @@
                 :key="option.value"
                 @click="selectCalendar(option.value as 'birthdays' | 'shipping')"
                 :class="[
-                  'w-full px-6 py-4 text-left flex items-center gap-4 hover:bg-primary/5 transition-colors text-sm font-bold',
-                  selectedCalendar === option.value ? 'text-primary' : 'text-gray-600'
+                  'w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium',
+                  selectedCalendar === option.value ? 'text-primary bg-primary/5' : 'text-gray-700'
                 ]"
               >
-                <span class="text-2xl">{{ option.icon }}</span>
+                <component :is="option.icon" :size="18" :color="'currentColor'" />
                 <span>{{ option.label }}</span>
-                <svg v-if="selectedCalendar === option.value" class="ml-auto w-5 h-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
+                <IconCheck v-if="selectedCalendar === option.value" :size="16" :color="'currentColor'" class="ml-auto" />
               </button>
             </div>
           </Transition>
@@ -63,13 +63,13 @@
       </div>
 
       <!-- Main Content Grid -->
-      <div class="grid lg:grid-cols-[1fr_320px] gap-10 items-start">
-        <!-- Calendar Col -->
-        <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div v-if="calendarLoading" class="flex items-center justify-center py-32 bg-white rounded-3xl border border-gray-50 shadow-sm">
+      <div class="grid lg:grid-cols-[1fr_380px] gap-6 items-start">
+        <!-- Calendar Section -->
+        <div>
+          <div v-if="calendarLoading" class="flex items-center justify-center py-24 bg-white rounded-xl border border-gray-100">
             <div class="relative">
-              <div class="w-16 h-16 border-4 border-gray-100 rounded-full"></div>
-              <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+              <div class="w-12 h-12 border-3 border-gray-100 rounded-full"></div>
+              <div class="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
             </div>
           </div>
 
@@ -85,184 +85,118 @@
           />
         </div>
 
-        <!-- Sidebar Col -->
-        <div class="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 delay-150">
-          <!-- Today's Highlight -->
-          <div v-if="selectedCalendar === 'birthdays'" class="bg-gradient-to-br from-primary to-blue-700 rounded-3xl p-6 text-white shadow-xl shadow-primary/20">
-            <div class="flex items-center justify-between mb-6">
-              <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl">
-                🎂
-              </div>
-              <span class="text-xs font-bold uppercase tracking-widest opacity-60">Hoje</span>
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Today's Events Card -->
+          <CalendarCard
+            v-if="selectedCalendar === 'birthdays'"
+            title="Aniversários Hoje"
+            :subtitle="todayBirthdays.length > 0 ? `${todayBirthdays.length} aniversariante(s)` : 'Nenhum evento hoje'"
+            icon-bg-class="bg-gradient-to-br from-orange-400 to-pink-500"
+          >
+            <template #icon>
+              <IconCake :size="20" color="white" />
+            </template>
+            
+            <div v-if="todayBirthdays.length > 0" class="space-y-2">
+              <button 
+                v-for="person in todayBirthdays.slice(0, 5)" 
+                :key="person.id"
+                class="w-full bg-gray-50 hover:bg-gray-100 transition-colors p-3 rounded-lg flex items-center justify-between group"
+                @click="handleDayClick(new Date().getDate())"
+              >
+                <span class="text-sm font-medium text-gray-700 truncate">{{ person.nome || person.nome_social }}</span>
+                <IconChevronDown :size="16" color="currentColor" class="text-gray-400 -rotate-90 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+              <p v-if="todayBirthdays.length > 5" class="text-xs text-center text-gray-500 pt-2 font-medium">
+                +{{ todayBirthdays.length - 5 }} outros
+              </p>
             </div>
             
-            <div v-if="todayBirthdays.length > 0">
-              <h4 class="text-2xl font-bold mb-1">{{ todayBirthdays.length }} Aniversariante(s)</h4>
-              <p class="text-sm text-blue-100 mb-6">Não deixe de enviar os parabéns!</p>
-              
-              <div class="space-y-2">
-                <div 
-                  v-for="person in todayBirthdays.slice(0, 4)" 
-                  :key="person.id"
-                  class="bg-white/10 hover:bg-white/20 transition-colors p-3 rounded-xl flex items-center justify-between group cursor-pointer"
-                  @click="handleDayClick(new Date().getDate())"
-                >
-                  <span class="text-sm font-bold truncate pr-2">{{ person.nome || person.nome_social }}</span>
-                  <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m9 5 7 7-7 7"/>
-                  </svg>
-                </div>
-                <p v-if="todayBirthdays.length > 4" class="text-[10px] text-center font-bold uppercase opacity-60 pt-2">
-                  + {{ todayBirthdays.length - 4 }} Outros
-                </p>
-              </div>
+            <div v-else class="py-8 text-center">
+              <p class="text-sm text-gray-400">Nenhum aniversário hoje</p>
             </div>
-            
-            <div v-else class="py-10 text-center opacity-60">
-              <p class="text-sm font-bold uppercase tracking-widest">Nenhum evento hoje</p>
-            </div>
-          </div>
+          </CalendarCard>
 
-          <!-- Quick Legend Card -->
-          <div class="bg-white rounded-3xl p-6 border border-gray-50 shadow-sm">
-            <h4 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-gray-50 pb-4">Legenda e Status</h4>
-            
-            <div class="space-y-4">
-              <div class="flex items-center gap-4">
-                <div class="w-3 h-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 shadow-md shadow-yellow-400/20"></div>
-                <div>
-                  <p class="text-sm font-bold text-gray-800">Aniversários</p>
-                  <p class="text-[10px] text-gray-400 font-medium">Dados do CRM sincronizados</p>
+          <!-- Legend Card -->
+          <StatusCard title="Legenda">
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <IconCake :size="18" color="currentColor" class="text-orange-500" />
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-700">Aniversários</p>
+                  <p class="text-xs text-gray-400">Dados do CRM</p>
                 </div>
               </div>
               
-              <div class="flex items-center gap-4">
-                <div class="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-blue-400 shadow-md shadow-primary/20"></div>
-                <div>
-                  <p class="text-sm font-bold text-gray-800">Embarques</p>
-                  <p class="text-[10px] text-gray-400 font-medium">Logística e Datas de Saída</p>
+              <div class="flex items-center gap-3">
+                <IconPlane :size="18" color="currentColor" class="text-blue-500" />
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-700">Embarques</p>
+                  <p class="text-xs text-gray-400">Datas de saída</p>
                 </div>
               </div>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-gray-50">
-              <div class="bg-gray-50 rounded-xl p-3 flex items-center gap-3">
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Sistema Online</span>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <div class="bg-green-50 rounded-lg p-3 flex items-center gap-2">
+                <IconActivity :size="14" color="currentColor" class="text-green-600" />
+                <span class="text-xs font-medium text-green-700">Sistema Online</span>
               </div>
             </div>
-          </div>
+          </StatusCard>
 
-          <!-- Webhook Schedule Card -->
-          <div class="bg-white rounded-3xl p-6 border border-gray-50 shadow-sm" id="webhook-scheduler-card">
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Automação de Webhooks</h4>
-              <span class="text-[10px] font-bold text-primary/60 uppercase">Agenda + Tempo real</span>
-            </div>
+          <!-- Events Summary -->
+          <WebhookEventsSummary
+            v-if="!eventsLoading && webhookEvents.length > 0"
+            :events="webhookEvents"
+            @show-all="scrollToEvents"
+          />
 
-            <div class="bg-gray-50 rounded-2xl p-4 mb-4">
-              <p class="text-xs font-bold text-gray-700 mb-3">Criar novo evento</p>
-              <div class="space-y-3">
-                <div>
-                  <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Evento</label>
-                  <select
-                    v-model="newEventType"
-                    class="mt-2 w-full px-3 py-2 rounded-xl border border-gray-100 bg-white text-sm font-semibold text-gray-700"
-                  >
-                    <option v-for="option in webhookEventOptions" :key="option.value" :value="option.value">
-                      {{ option.label }}
-                    </option>
-                  </select>
-                </div>
+          <!-- Webhook Automation Card -->
+          <CalendarCard
+            id="webhook-events-card"
+            title="Automação de Webhooks"
+            :subtitle="`${activeEventsCount} evento(s) ativo(s)`"
+            icon-bg-class="bg-gradient-to-br from-primary to-blue-600"
+            content-class="space-y-4"
+          >
+            <template #icon>
+              <IconZap :size="20" color="white" />
+            </template>
 
-                <div>
-                  <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Horário</label>
-                  <input
-                    v-model="newEventTime"
-                    type="time"
-                    class="mt-2 w-full px-3 py-2 rounded-xl border border-gray-100 bg-white text-sm font-semibold text-gray-700"
-                  />
-                </div>
-
-                <label class="flex items-center gap-2 text-xs font-semibold text-gray-600">
-                  <input
-                    type="checkbox"
-                    class="rounded border-gray-300"
-                    v-model="newEventActive"
-                  />
-                  Ativo (enviar webhook)
-                </label>
-              </div>
-
+            <template #action>
               <BaseButton
-                class="w-full mt-4"
                 size="sm"
                 variant="primary"
-                :disabled="eventsSaving"
-                @click="handleCreateEvent"
+                @click="openCreateModal"
+                class="shadow-sm"
               >
-                {{ eventsSaving ? 'Salvando...' : 'Adicionar evento' }}
+                <span class="flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  Criar
+                </span>
               </BaseButton>
+            </template>
+
+            <!-- Events List -->
+            <div v-if="eventsLoading" class="py-8 text-center">
+              <div class="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs text-gray-400 mt-2">Carregando eventos...</p>
             </div>
+            
+            <WebhookEventsOrganizer
+              v-else
+              :events="webhookEvents"
+              @trigger="handleTriggerEvent"
+              @edit="openEditModal"
+              @delete="handleDeleteEvent"
+            />
 
-            <div v-if="eventsLoading" class="py-6 text-center text-xs text-gray-400">Carregando eventos...</div>
-            <div v-else-if="webhookEvents.length === 0" class="py-6 text-center text-xs text-gray-400">Nenhum evento configurado.</div>
-
-            <div v-else class="space-y-3">
-              <div
-                v-for="event in webhookEvents"
-                :key="event.id"
-                class="border border-gray-100 rounded-2xl p-4"
-              >
-                <div class="space-y-3">
-                  <div>
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Evento</label>
-                    <select
-                      v-model="event.nome_evento"
-                      class="mt-2 w-full px-3 py-2 rounded-xl border border-gray-100 bg-white text-sm font-semibold text-gray-700"
-                    >
-                      <option v-for="option in webhookEventOptions" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                      </option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Horário</label>
-                    <input
-                      v-model="event.horario_evento"
-                      type="time"
-                      class="mt-2 w-full px-3 py-2 rounded-xl border border-gray-100 bg-white text-sm font-semibold text-gray-700"
-                    />
-                  </div>
-
-                  <label class="flex items-center gap-2 text-xs font-semibold text-gray-600">
-                    <input
-                      type="checkbox"
-                      class="rounded border-gray-300"
-                      :checked="event.acao_evento === 'webhook'"
-                      @change="setEventActive(event, ($event.target as HTMLInputElement).checked)"
-                    />
-                    Ativo (enviar webhook)
-                  </label>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 mt-4">
-                  <BaseButton size="sm" variant="outline" :disabled="eventsSaving" @click="handleSaveEvent(event)">
-                    Salvar
-                  </BaseButton>
-                  <BaseButton size="sm" variant="primary" :disabled="eventsSaving" @click="handleTriggerEvent(event)">
-                    Disparar
-                  </BaseButton>
-                  <BaseButton size="sm" variant="outline" class="text-red-500" :disabled="eventsSaving" @click="handleDeleteEvent(event)">
-                    Remover
-                  </BaseButton>
-                </div>
-              </div>
-            </div>
-
-            <p v-if="eventsError" class="text-[10px] text-red-500 mt-3">{{ eventsError }}</p>
-          </div>
+            <p v-if="eventsError" class="text-xs text-red-500 bg-red-50 rounded-lg p-3">{{ eventsError }}</p>
+          </CalendarCard>
         </div>
       </div>
 
@@ -281,6 +215,15 @@
         :selected-date="selectedDay"
         :month="currentMonth"
       />
+
+      <!-- Webhook Event Modal -->
+      <WebhookEventModal
+        v-model="eventModalOpen"
+        :event="selectedEvent"
+        :event-options="webhookEventOptions"
+        :saving="eventsSaving"
+        @save="handleSaveEventFromModal"
+      />
     </div>
   </PageShell>
 </template>
@@ -294,6 +237,18 @@ import AdminCalendar from '~/components/AdminCalendar.vue'
 import BirthdayListModal from '~/components/BirthdayListModal.vue'
 import EmbarqueListModal from '~/components/EmbarqueListModal.vue'
 import BaseButton from '~/components/BaseButton.vue'
+import CalendarCard from '~/components/CalendarCard.vue'
+import StatusCard from '~/components/StatusCard.vue'
+import WebhookEventsOrganizer from '~/components/WebhookEventsOrganizer.vue'
+import WebhookEventModal from '~/components/WebhookEventModal.vue'
+import WebhookEventsSummary from '~/components/WebhookEventsSummary.vue'
+import IconCalendar from '~/components/IconCalendar.vue'
+import IconCake from '~/components/IconCake.vue'
+import IconPlane from '~/components/IconPlane.vue'
+import IconZap from '~/components/IconZap.vue'
+import IconChevronDown from '~/components/IconChevronDown.vue'
+import IconCheck from '~/components/IconCheck.vue'
+import IconActivity from '~/components/IconActivity.vue'
 import { useCalendario } from '~/composables/useCalendario'
 import { useEmbarques } from '~/composables/useEmbarques'
 import { useWebhookEvents } from '~/composables/useWebhookEvents'
@@ -320,9 +275,11 @@ const selectedCalendar = ref<'birthdays' | 'shipping'>('birthdays')
 const dropdownOpen = ref(false)
 const modalOpen = ref(false)
 const embarqueModalOpen = ref(false)
+const eventModalOpen = ref(false)
 const selectedDay = ref(1)
 const selectedDayBirthdays = ref<any[]>([])
 const selectedDayEmbarques = ref<any[]>([])
+const selectedEvent = ref<WebhookEvent | null>(null)
 
 const {
   events: webhookEvents,
@@ -337,13 +294,10 @@ const {
 } = useWebhookEvents()
 
 const webhookEventOptions = WEBHOOK_EVENT_OPTIONS
-const newEventType = ref<WebhookEventType>('aniversario_hoje')
-const newEventTime = ref('12:00')
-const newEventActive = ref(true)
 
 const calendarOptions = [
-  { value: 'birthdays', label: 'Aniversários', icon: '🎂' },
-  { value: 'shipping', label: 'Embarques', icon: '📦' }
+  { value: 'birthdays', label: 'Aniversários', icon: IconCake },
+  { value: 'shipping', label: 'Embarques', icon: IconPlane }
 ]
 
 const selectedCalendarLabel = computed(() => {
@@ -351,13 +305,17 @@ const selectedCalendarLabel = computed(() => {
 })
 
 const selectedCalendarIcon = computed(() => {
-  return calendarOptions.find(o => o.value === selectedCalendar.value)?.icon || ''
+  return calendarOptions.find(o => o.value === selectedCalendar.value)?.icon || IconCalendar
 })
 
 const calendarLoading = computed(() => {
   return selectedCalendar.value === 'birthdays' ? loading.value : loadingEmbarques.value
 })
 
+
+const activeEventsCount = computed(() => {
+  return webhookEvents.value.filter(e => e.acao_evento === 'webhook').length
+})
 const eventCounts = computed(() => {
   const counts: Record<string, number> = {}
   
@@ -437,28 +395,25 @@ onMounted(() => {
   fetchEvents()
 })
 
-const setEventActive = (event: WebhookEvent, active: boolean) => {
-  event.acao_evento = active ? 'webhook' : 'disabled'
+const openCreateModal = () => {
+  selectedEvent.value = null
+  eventModalOpen.value = true
 }
 
-const handleCreateEvent = async () => {
-  if (!newEventTime.value) return
-
-  await createEvent({
-    nome_evento: newEventType.value,
-    horario_evento: newEventTime.value,
-    acao_evento: newEventActive.value ? 'webhook' : 'disabled'
-  })
+const openEditModal = (event: WebhookEvent) => {
+  selectedEvent.value = event
+  eventModalOpen.value = true
 }
 
-const handleSaveEvent = async (event: WebhookEvent) => {
-  if (!event.nome_evento || !event.horario_evento) return
+const handleSaveEventFromModal = async (payload: { nome_evento: WebhookEventType; horario_evento: string; acao_evento: string }) => {
+  if (selectedEvent.value) {
+    await updateEvent(selectedEvent.value.id, payload)
+  } else {
+    await createEvent(payload)
+  }
 
-  await updateEvent(event.id, {
-    nome_evento: event.nome_evento as WebhookEventType,
-    horario_evento: event.horario_evento,
-    acao_evento: event.acao_evento || 'webhook'
-  })
+  eventModalOpen.value = false
+  selectedEvent.value = null
 }
 
 const handleDeleteEvent = async (event: WebhookEvent) => {
@@ -467,15 +422,29 @@ const handleDeleteEvent = async (event: WebhookEvent) => {
 
 const handleTriggerEvent = async (event: WebhookEvent) => {
   if (!event.nome_evento) return
-  
+
+  // Build a YYYY-MM-DD date to send with the webhook. Use today as fallback.
+  const dt = new Date()
+  const year = dt.getFullYear()
+  const month = String(dt.getMonth() + 1).padStart(2, '0')
+  const day = String(dt.getDate()).padStart(2, '0')
+  const formattedDate = `${year}-${month}-${day}`
+
   try {
-    console.log('[Calendario] Disparando evento:', event.nome_evento)
-    await triggerEvent(event.nome_evento as WebhookEventType)
+    console.log('[Calendario] Disparando evento:', event.nome_evento, 'data:', formattedDate)
+    await triggerEvent(event.nome_evento as WebhookEventType, '', formattedDate, '')
     console.log('[Calendario] Evento disparado com sucesso!')
     alert('Webhook disparado com sucesso!')
   } catch (e: any) {
     console.error('[Calendario] Erro ao disparar:', e)
     alert(`Erro ao disparar webhook: ${e.message || e}`)
+  }
+}
+
+const scrollToEvents = () => {
+  const element = document.getElementById('webhook-events-card')
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 }
 </script>

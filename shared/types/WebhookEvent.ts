@@ -4,4 +4,5 @@ export interface WebhookEvent {
   nome_evento: string | null
   horario_evento: string | null
   acao_evento: string | null
+  evento_ativo?: boolean | null
 }
