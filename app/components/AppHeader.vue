@@ -28,7 +28,7 @@
 
       <!-- Desktop Button -->
       <div class="hidden md:flex items-center gap-4">
-        <AppNotifications />
+        <AppNotifications v-if="user" />
         <ClientOnly>
           <div v-if="!user" class="flex items-center gap-3">
             <NuxtLink to="/cadastro" class="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
@@ -67,7 +67,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <div class="md:hidden flex items-center gap-2">
+        <div class="md:hidden flex items-center gap-2" v-if="user">
           <AppNotifications />
         </div>
         <!-- Mobile Menu Button -->
