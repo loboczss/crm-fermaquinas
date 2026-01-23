@@ -1,5 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
-import type { Database } from '~/types/database.types'
+import { createClient } from '@supabase/supabase-js'
 import { WEBHOOK_EVENT_OPTIONS } from '../../../../shared/constants/webhookEvents'
 
 export default defineEventHandler(async (event) => {
@@ -30,7 +29,17 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const supabase = await serverSupabaseClient<Database>(event)
+  const supabaseUrl = process.env.NUXT_SUPABASE_URL
+  const supabaseKey = process.env.NUXT_SUPABASE_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Missing Supabase configuration'
+    })
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   try {
     const { data, error } = await supabase

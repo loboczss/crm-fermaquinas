@@ -52,7 +52,7 @@ export default defineTask({
         }
       }
 
-      const allowedEvents = new Set(WEBHOOK_EVENT_OPTIONS.map((item) => item.value))
+      const allowedEvents = new Set<string>(WEBHOOK_EVENT_OPTIONS.map((item) => item.value))
       const dueEvents = allEvents.filter((item) => item.horario_evento === nowTime && item.nome_evento && allowedEvents.has(item.nome_evento))
 
       if (dueEvents.length === 0) {
