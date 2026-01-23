@@ -1,26 +1,26 @@
 <template>
-  <header id="app-header" class="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
-    <div class="container mx-auto px-6 h-20 flex items-center justify-between">
-      <div class="flex flex-col">
-        <NuxtLink to="/" class="text-2xl font-bold tracking-tight text-gray-900 hover:opacity-80 transition-opacity">
-          CRM Eva<span class="text-primary text-4xl leading-none">.</span>
+  <header id="app-header" class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+    <div class="container mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <NuxtLink to="/" class="text-xl font-semibold tracking-tight text-gray-900 hover:opacity-90 transition-opacity flex items-center gap-2">
+          <span class="leading-none">CRM Eva</span>
+          <span class="text-primary text-2xl leading-none">.</span>
         </NuxtLink>
-        <p class="hidden sm:block text-[10px] uppercase tracking-widest text-gray-400 font-medium">
-          Management System
-        </p>
       </div>
 
       <!-- Desktop Nav -->
       <nav id="desktop-nav" class="hidden md:block">
-        <ul class="flex items-center gap-8">
+        <ul class="flex items-center gap-6">
           <li v-for="item in navItems" :key="item.path">
-            <NuxtLink 
-              :to="item.path" 
-              class="text-sm font-medium text-gray-600 hover:text-primary transition-colors duration-200 relative group"
+            <NuxtLink
+              :to="item.path"
+              class="text-sm font-medium text-gray-600 hover:text-primary transition-colors duration-200 py-2 px-1"
               active-class="text-primary"
             >
-              {{ item.label }}
-              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" :class="{ 'w-full': $route.path === item.path }"></span>
+              <span class="relative inline-block">
+                {{ item.label }}
+                <span class="block h-0.5 bg-primary absolute left-0 right-0 bottom-0 opacity-0 transition-opacity duration-200" :class="{ 'opacity-100': $route.path === item.path }"></span>
+              </span>
             </NuxtLink>
           </li>
         </ul>
@@ -31,20 +31,20 @@
         <AppNotifications />
         <ClientOnly>
           <div v-if="!user" class="flex items-center gap-3">
-             <NuxtLink to="/cadastro" class="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
+            <NuxtLink to="/cadastro" class="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
               Criar conta
             </NuxtLink>
-            <BaseButton 
+            <BaseButton
               id="auth-button-desktop"
-              variant="outline" 
-              size="sm" 
+              variant="outline"
+              size="sm"
               @click="handleAuthAction"
             >
               Entrar
             </BaseButton>
           </div>
           <div v-else class="flex items-center gap-3">
-            <NuxtLink 
+            <NuxtLink
               to="/perfil"
               class="text-sm font-semibold text-gray-600 hover:text-primary transition-colors flex items-center gap-2"
             >
@@ -54,10 +54,10 @@
               </svg>
               Meu Perfil
             </NuxtLink>
-            <BaseButton 
+            <BaseButton
               id="auth-button-desktop"
-              variant="outline" 
-              size="sm" 
+              variant="outline"
+              size="sm"
               @click="handleAuthAction"
             >
               Sair
