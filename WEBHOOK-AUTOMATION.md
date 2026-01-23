@@ -16,60 +16,108 @@ NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
 ## Eventos Disponíveis
 
 ### 1. Aniversário Hoje (`aniversario_hoje`)
-Envia dados de clientes que fazem aniversário no dia atual.
+**Tabela**: `crm_evastur`  
+**Condição**: Clientes que fazem aniversário no dia atual (busca por mês-dia na `data_nascimento`)
 
-**Dados enviados:**
+**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
 ```json
 {
   "tipo_evento": "aniversario_hoje",
   "nome": "Nome do Cliente",
-  "data_aniversario": "2000-01-23",
   "contato_id": "uuid-do-contato",
+  "data_nascimento": "2000-01-23",
   "data_referencia": "2026-01-23"
 }
 ```
 
 ### 2. Aniversário Amanhã (`aniversario_amanha`)
-Envia dados de clientes que fazem aniversário no dia seguinte.
+**Tabela**: `crm_evastur`  
+**Condição**: Clientes que fazem aniversário no dia seguinte
 
-**Dados enviados:**
+**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
 ```json
 {
   "tipo_evento": "aniversario_amanha",
   "nome": "Nome do Cliente",
-  "data_aniversario": "2000-01-24",
   "contato_id": "uuid-do-contato",
+  "data_nascimento": "2000-01-24",
   "data_referencia": "2026-01-24"
 }
 ```
 
 ### 3. Embarque Hoje (`embarque_hoje`)
-Envia dados de vendas com embarque agendado para o dia atual.
+**Tabela**: `historico_vendas_evastur`  
+**Condição**: Vendas com `embarque` agendado para o dia atual
 
-**Dados enviados:**
+**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
 ```json
 {
   "tipo_evento": "embarque_hoje",
   "nome": "Nome do Cliente",
+  "contato_id": "uuid-do-contato",
   "data_embarque": "2026-01-23",
-  "observacoes": "Pendências | Observação | Fornecedor",
   "fornecedor": "Nome do Fornecedor",
+  "observacoes": "Pendências | Observação",
   "data_referencia": "2026-01-23"
 }
 ```
 
 ### 4. Embarque D+1 (`embarque_d1`)
-Envia dados de vendas com embarque agendado para o dia seguinte.
+**Tabela**: `historico_vendas_evastur`  
+**Condição**: Vendas com `embarque` agendado para o dia seguinte
 
-**Dados enviados:**
+**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
 ```json
 {
   "tipo_evento": "embarque_d1",
   "nome": "Nome do Cliente",
+  "contato_id": "uuid-do-contato",
   "data_embarque": "2026-01-24",
-  "observacoes": "Pendências | Observação | Fornecedor",
   "fornecedor": "Nome do Fornecedor",
+  "observacoes": "Pendências | Observação",
   "data_referencia": "2026-01-24"
+}
+```
+
+### 5. Follow-up Pendente (`followup_pendente`)
+**Tabelas**: `historico_msg_evastur` + `crm_evastur`  
+**Condição**: 
+- Mensagens com `created_at` há mais de 1 dia (24 horas)
+- Última mensagem do contato tem `message_type = 'outgoing'` (enviada por nós)
+- Busca dados completos do cliente na tabela CRM
+
+**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+```json
+{
+  "tipo_evento": "followup_pendente",
+  "nome": "Nome do Cliente",
+  "contato_id": "uuid-do-contato",
+  "data_nascimento": "2000-01-23",
+  "ultima_mensagem": "2026-01-18 00:24:55.634382+00",
+  "data_referencia": "2026-01-23"
+}
+```
+
+### 6. Clientes Inativos 30 dias (`clientes_inativos_30d`)
+**Tabelas**: `historico_vendas_evastur` + `crm_evastur`  
+**Condição**:
+- Clientes que JÁ compraram alguma vez
+- Última compra (`created_at` na tabela vendas) foi há 30 dias ou mais
+- Busca dados completos do cliente na tabela CRM
+- Calcula exatamente quantos dias desde a última compra
+
+**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+```json
+{
+  "tipo_evento": "clientes_inativos_30d",
+  "nome": "Nome do Cliente",
+  "contato_id": "uuid-do-contato",
+  "data_nascimento": "2000-01-23",
+  "email": "cliente@email.com",
+  "telefone": "+5511999999999",
+  "dias_sem_compra": 45,
+  "ultima_compra": "2025-12-09T10:30:00.000Z",
+  "data_referencia": "2026-01-23"
 }
 ```
 

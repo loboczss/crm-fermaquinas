@@ -134,7 +134,7 @@ const triggerFollowUpWebhooks = async (eventType: string) => {
   const now = getNowInTimeZone()
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
 
-  // Buscar todas as mensagens
+  // Buscar todas as mensagens com mais de 1 dia
   const { data: messages, error } = await supabase
     .from('historico_msg_evastur')
     .select('contato_id, contact_name, created_at, message_type')
@@ -154,20 +154,40 @@ const triggerFollowUpWebhooks = async (eventType: string) => {
     }
   }
 
-  // Filtrar apenas os que têm última mensagem como outgoing
-  const results = []
+  // Buscar dados dos clientes que precisam de follow-up
+  const clientsToFollow = []
   for (const [contato_id, lastMsg] of contactMap.entries()) {
+    // Só envia follow-up se a última mensagem foi outgoing (enviada por nós)
     if (lastMsg.message_type === 'outgoing') {
-      const result = await sendToWebhook({
-        tipo_evento: eventType,
-        nome: lastMsg.contact_name || 'Sem nome',
-        contato_id,
-        ultima_mensagem: lastMsg.created_at,
-        data_referencia: formatDate(now)
-      })
-
-      results.push({ nome: lastMsg.contact_name, ...result })
+      clientsToFollow.push(contato_id)
     }
+  }
+
+  // Buscar informações completas dos clientes no CRM
+  const { data: clients, error: clientError } = await supabase
+    .from('crm_evastur')
+    .select('contato_id, nome, nome_social, data_nascimento')
+    .in('contato_id', clientsToFollow)
+
+  if (clientError) {
+    console.error('[Webhook] Erro ao buscar dados dos clientes:', clientError)
+  }
+
+  const results = []
+  for (const client of clients || []) {
+    const lastMsg = contactMap.get(client.contato_id)
+    const nome = client.nome || client.nome_social || 'Sem nome'
+
+    const result = await sendToWebhook({
+      tipo_evento: eventType,
+      nome,
+      contato_id: client.contato_id,
+      data_nascimento: client.data_nascimento,
+      ultima_mensagem: lastMsg.created_at,
+      data_referencia: formatDate(now)
+    })
+
+    results.push({ nome, ...result })
   }
 
   return results
@@ -178,10 +198,10 @@ const triggerClientesInativosWebhooks = async (eventType: string) => {
   const now = getNowInTimeZone()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-  // Buscar vendas dos últimos 30 dias
+  // Buscar vendas dos últimos 30 dias para identificar clientes ativos
   const { data: recentSales, error: salesError } = await supabase
     .from('historico_vendas_evastur')
-    .select('contato_id')
+    .select('contato_id, created_at')
     .gte('created_at', thirtyDaysAgo.toISOString())
 
   if (salesError) {
@@ -191,33 +211,75 @@ const triggerClientesInativosWebhooks = async (eventType: string) => {
 
   const activeContactIds = new Set((recentSales || []).map((s: any) => s.contato_id))
 
-  // Buscar todos os clientes
-  const { data: allClients, error: clientsError } = await supabase
+  // Buscar todos os clientes que já compraram alguma vez
+  const { data: clientsWithSales, error: clientSalesError } = await supabase
+    .from('historico_vendas_evastur')
+    .select('contato_id, created_at')
+    .order('created_at', { ascending: false })
+
+  if (clientSalesError) {
+    console.error('[Webhook] Erro ao buscar histórico de vendas:', clientSalesError)
+    throw clientSalesError
+  }
+
+  // Agrupar por contato_id e pegar a última compra
+  const lastPurchaseMap = new Map()
+  for (const sale of clientsWithSales || []) {
+    if (!lastPurchaseMap.has(sale.contato_id)) {
+      lastPurchaseMap.set(sale.contato_id, sale.created_at)
+    }
+  }
+
+  // Filtrar apenas clientes inativos (última compra há mais de 30 dias)
+  const inactiveContactIds = []
+  for (const [contato_id, lastPurchase] of lastPurchaseMap.entries()) {
+    if (!activeContactIds.has(contato_id)) {
+      const lastPurchaseDate = new Date(lastPurchase)
+      const daysSinceLastPurchase = Math.floor((now.getTime() - lastPurchaseDate.getTime()) / (1000 * 60 * 60 * 24))
+      
+      // Só incluir se realmente passou 30 dias
+      if (daysSinceLastPurchase >= 30) {
+        inactiveContactIds.push(contato_id)
+      }
+    }
+  }
+
+  if (inactiveContactIds.length === 0) {
+    return []
+  }
+
+  // Buscar dados completos dos clientes inativos
+  const { data: inactiveClients, error: clientsError } = await supabase
     .from('crm_evastur')
-    .select('contato_id, nome, nome_social, data_nascimento')
+    .select('contato_id, nome, nome_social, data_nascimento, email, telefone')
+    .in('contato_id', inactiveContactIds)
 
   if (clientsError) {
-    console.error('[Webhook] Erro ao buscar clientes:', clientsError)
+    console.error('[Webhook] Erro ao buscar clientes inativos:', clientsError)
     throw clientsError
   }
 
-  // Filtrar clientes inativos
+  // Enviar webhooks para cada cliente inativo
   const results = []
-  for (const client of allClients || []) {
-    if (!activeContactIds.has(client.contato_id)) {
-      const nome = client.nome || client.nome_social || 'Sem nome'
+  for (const client of inactiveClients || []) {
+    const nome = client.nome || client.nome_social || 'Sem nome'
+    const lastPurchase = lastPurchaseMap.get(client.contato_id)
+    const lastPurchaseDate = new Date(lastPurchase)
+    const daysSinceLastPurchase = Math.floor((now.getTime() - lastPurchaseDate.getTime()) / (1000 * 60 * 60 * 24))
 
-      const result = await sendToWebhook({
-        tipo_evento: eventType,
-        nome,
-        contato_id: client.contato_id,
-        data_nascimento: client.data_nascimento,
-        dias_sem_compra: 30,
-        data_referencia: formatDate(now)
-      })
+    const result = await sendToWebhook({
+      tipo_evento: eventType,
+      nome,
+      contato_id: client.contato_id,
+      data_nascimento: client.data_nascimento,
+      email: client.email,
+      telefone: client.telefone,
+      dias_sem_compra: daysSinceLastPurchase,
+      ultima_compra: lastPurchase,
+      data_referencia: formatDate(now)
+    })
 
-      results.push({ nome, ...result })
-    }
+    results.push({ nome, dias_sem_compra: daysSinceLastPurchase, ...result })
   }
 
   return results
