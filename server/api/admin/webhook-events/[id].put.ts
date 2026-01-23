@@ -3,7 +3,15 @@ import { WEBHOOK_EVENT_OPTIONS } from '../../../../shared/constants/webhookEvent
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  const body = await readBody(event)
+  let body: any = null
+  try {
+    body = await readBody(event)
+  } catch (e: any) {
+    console.error('[Webhook PUT] Error reading body:', e)
+    throw createError({ statusCode: 400, statusMessage: 'Invalid request body' })
+  }
+
+  console.log(`[Webhook PUT] /api/admin/webhook-events/${id} received body:`, body)
   const { nome_evento, horario_evento, acao_evento } = body
 
   if (!id) {
