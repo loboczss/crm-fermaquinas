@@ -156,14 +156,21 @@ const user = computed(() => auth.user.value)
 const isMenuOpen = ref(false)
 const $route = useRoute()
 
-const navItems = [
-  { label: 'Início', path: '/' },
-  { label: 'Clientes', path: '/clientes' },
-  { label: 'Vendas', path: '/vendas' },
-  { label: 'Calendário', path: '/calendario' },
-  { label: 'Relatórios', path: '/relatorios' },
-  { label: 'Privacidade', path: '/privacidade' },
-]
+const navItems = computed(() => {
+  const items: Array<{ label: string; path: string; auth?: boolean }> = [
+    { label: 'Início', path: '/' },
+    { label: 'Clientes', path: '/clientes', auth: true },
+    { label: 'Vendas', path: '/vendas', auth: true },
+    { label: 'Calendário', path: '/calendario', auth: true },
+    { label: 'Relatórios', path: '/relatorios', auth: true },
+    { label: 'Privacidade', path: '/privacidade' },
+  ]
+
+  return items.filter((i) => {
+    // show item if it doesn't require auth, or if user is logged in
+    return !i.auth || user.value
+  })
+})
 
 const handleAuthAction = async () => {
   isMenuOpen.value = false
