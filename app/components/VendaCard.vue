@@ -1,38 +1,47 @@
 <template>
-  <SurfaceCard padding="none" rounded="lg" class="flex flex-col h-full bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group border border-gray-100 overflow-hidden relative min-h-[160px]">
+  <SurfaceCard padding="none" rounded="lg" class="flex flex-col h-full bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group border border-gray-100 overflow-hidden relative min-h-[200px]">
     
-    <!-- Top colored bar (aesthetic) -->
-    <div class="h-1 w-full bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-primary/40 group-hover:to-primary/10 transition-all duration-300"></div>
+    <!-- Top colored bar with status-based gradient -->
+    <div 
+      :class="[
+        'h-1 w-full transition-all duration-300',
+        getStatusGradient(venda.status)
+      ]"
+    ></div>
 
     <div class="p-4 flex flex-col h-full justify-between gap-3">
-      <!-- Header: Value + Status/Icon -->
-      <div class="flex justify-between items-start">
-        <div class="flex flex-col">
+      <!-- Header: Value + Status Badge -->
+      <div class="flex justify-between items-start gap-2">
+        <div class="flex flex-col flex-1 min-w-0">
             <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Valor Venda</span>
-            <span class="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors">
+            <span class="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors truncate">
                 {{ formatCurrency(venda.valor_venda) }}
             </span>
         </div>
-        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary/10 group-hover:text-primary transition-all duration-300">
-             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-                <path d="M3 6h18" />
-                <path d="M16 10a4 4 0 0 1-8 0" />
-            </svg>
+        <div v-if="venda.status" class="shrink-0">
+          <span 
+            :class="[
+              'text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full',
+              getStatusBadgeClass(venda.status)
+            ]"
+          >
+            {{ venda.status }}
+          </span>
         </div>
       </div>
 
-      <!-- Content: Customer Info -->
-      <div class="space-y-2">
+      <!-- Content: Customer Info + New Fields -->
+      <div class="space-y-2 flex-1">
         <div class="flex items-center gap-2">
            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
             </svg>
-           <span class="text-sm font-medium text-gray-700 truncate min-w-0" :title="venda.contact_name">
+           <span class="text-sm font-medium text-gray-700 truncate min-w-0" :title="venda.contact_name || undefined">
              {{ venda.contact_name || 'Cliente (Sem nome)' }}
            </span>
         </div>
+        
         <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -54,6 +63,51 @@
             </svg>
             <span class="text-xs text-gray-500 truncate">
                {{ venda.vendedor }}
+            </span>
+        </div>
+
+        <!-- New: Tipo de Venda -->
+        <div v-if="venda.tipo_venda" class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            <span class="text-xs text-gray-500 truncate">
+               {{ venda.tipo_venda }}
+            </span>
+        </div>
+
+
+        <!-- New: Embarque with formatted date -->
+        <div v-if="venda.embarque" class="flex items-center gap-2 bg-primary/5 -mx-1 px-2 py-1.5 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+              <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+              <path d="M12 3v6"/>
+            </svg>
+            <div class="flex flex-col flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-primary/60">Embarque</span>
+              <span class="text-xs text-primary font-bold">
+                {{ formatDate(venda.embarque) }}
+              </span>
+            </div>
+        </div>
+
+        <!-- New: Fornecedor -->
+        <div v-if="venda.fornecedor" class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="16" height="20" x="4" y="2" rx="2" ry="2"/>
+              <path d="M9 22v-4h6v4"/>
+              <path d="M8 6h.01"/>
+              <path d="M16 6h.01"/>
+              <path d="M8 10h.01"/>
+              <path d="M16 10h.01"/>
+              <path d="M8 14h.01"/>
+              <path d="M16 14h.01"/>
+            </svg>
+            <span class="text-xs text-gray-500 truncate">
+               {{ venda.fornecedor }}
             </span>
         </div>
       </div>
@@ -91,20 +145,48 @@
 </template>
 
 <script setup lang="ts">
-// formatCurrency and formatDate are auto-imported
-
-// If utils are auto-imported in Nuxt, the above might not be strictly needed as import but good practice or just rely on global.
-// Given strict TS context, better to expect them to be available or imported if they are utils.
-// The previous file used them directly, so they are likely auto-imported composables/utils.
+import type { HistoricoVenda } from '~~/shared/types/HistoricoVenda'
 
 defineProps<{
-  venda: any // Replace 'any' with proper type if available, e.g. Venda
+  venda: HistoricoVenda
   loading?: boolean
 }>()
 
 defineEmits<{
   (e: 'view', id: string): void
-  (e: 'edit', venda: any): void
+  (e: 'edit', venda: HistoricoVenda): void
   (e: 'delete', id: number): void
 }>()
+
+const getStatusGradient = (status: string | null): string => {
+  if (!status) return 'bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-primary/40 group-hover:to-primary/10'
+  
+  const s = status.toLowerCase()
+  if (s.includes('aprovado') || s.includes('pago') || s.includes('concluído')) {
+    return 'bg-gradient-to-r from-green-400 to-emerald-300'
+  }
+  if (s.includes('pendente') || s.includes('aguardando')) {
+    return 'bg-gradient-to-r from-yellow-400 to-amber-300'
+  }
+  if (s.includes('cancelado') || s.includes('rejeitado')) {
+    return 'bg-gradient-to-r from-red-400 to-rose-300'
+  }
+  return 'bg-gradient-to-r from-primary to-blue-400'
+}
+
+const getStatusBadgeClass = (status: string | null): string => {
+  if (!status) return 'bg-gray-100 text-gray-600'
+  
+  const s = status.toLowerCase()
+  if (s.includes('aprovado') || s.includes('pago') || s.includes('concluído')) {
+    return 'bg-green-100 text-green-700'
+  }
+  if (s.includes('pendente') || s.includes('aguardando')) {
+    return 'bg-yellow-100 text-yellow-700'
+  }
+  if (s.includes('cancelado') || s.includes('rejeitado')) {
+    return 'bg-red-100 text-red-700'
+  }
+  return 'bg-primary/10 text-primary'
+}
 </script>

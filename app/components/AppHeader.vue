@@ -28,6 +28,7 @@
 
       <!-- Desktop Button -->
       <div class="hidden md:flex items-center gap-4">
+        <AppNotifications />
         <ClientOnly>
           <div v-if="!user" class="flex items-center gap-3">
              <NuxtLink to="/cadastro" class="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
@@ -65,18 +66,23 @@
         </ClientOnly>
       </div>
 
-      <!-- Mobile Menu Button -->
-      <button 
-        id="mobile-menu-toggle"
-        @click="isMenuOpen = !isMenuOpen" 
-        class="md:hidden p-2 text-gray-600 hover:text-primary focus:outline-none"
-        aria-label="Menu"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+      <div class="flex items-center gap-2">
+        <div class="md:hidden flex items-center gap-2">
+          <AppNotifications />
+        </div>
+        <!-- Mobile Menu Button -->
+        <button 
+          id="mobile-menu-toggle"
+          @click="isMenuOpen = !isMenuOpen" 
+          class="md:hidden p-2 text-gray-600 hover:text-primary focus:outline-none"
+          aria-label="Menu"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Mobile Menu -->
@@ -142,6 +148,7 @@
 import { ref, computed } from '#imports'
 import { navigateTo, useRoute } from '#imports'
 import BaseButton from './BaseButton.vue'
+import AppNotifications from './AppNotifications.vue'
 import { useAuth } from '~/composables/useAuth'
 
 const auth = useAuth()
@@ -153,6 +160,7 @@ const navItems = [
   { label: 'Início', path: '/' },
   { label: 'Clientes', path: '/clientes' },
   { label: 'Vendas', path: '/vendas' },
+  { label: 'Calendário', path: '/calendario' },
   { label: 'Relatórios', path: '/relatorios' },
   { label: 'Privacidade', path: '/privacidade' },
 ]

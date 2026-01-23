@@ -428,23 +428,58 @@ export const useClientes = () => {
   }
 
   const getVendedores = async () => {
-    const { data } = await (supabase as any)
-      .from('historico_vendas_evastur')
-      .select('vendedor')
-      .not('vendedor', 'is', null)
+    let allVendedores: string[] = []
+    let from = 0
+    const pageSize = 1000
+    let hasMore = true
+
+    while (hasMore) {
+      const { data, error } = await (supabase as any)
+        .from('historico_vendas_evastur')
+        .select('vendedor')
+        .not('vendedor', 'is', null)
+        .range(from, from + pageSize - 1)
+      
+      if (error) throw error
+
+      if (data && data.length > 0) {
+        const items = data as Array<{ vendedor: string }>
+        allVendedores = [...allVendedores, ...items.map(i => i.vendedor).filter(v => !!v)]
+        from += pageSize
+        hasMore = data.length === pageSize
+      } else {
+        hasMore = false
+      }
+    }
     
-    const items = (data || []) as Array<{ vendedor: string }>
-    return [...new Set(items.map(i => i.vendedor).filter(v => !!v))].sort()
+    return [...new Set(allVendedores)].sort()
   }
 
   const getAllClientesMinimal = async () => {
-    const { data, error } = await supabase
-      .from('crm_evastur')
-      .select('nome, contato_id')
-      .order('nome')
+    let allClientes: Array<{ nome: string, contato_id: string }> = []
+    let from = 0
+    const pageSize = 1000
+    let hasMore = true
 
-    if (error) throw error
-    return (data || []) as Array<{ nome: string, contato_id: string }>
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('crm_evastur')
+        .select('nome, contato_id')
+        .order('nome')
+        .range(from, from + pageSize - 1)
+
+      if (error) throw error
+      
+      if (data && data.length > 0) {
+        allClientes = [...allClientes, ...data]
+        from += pageSize
+        hasMore = data.length === pageSize
+      } else {
+        hasMore = false
+      }
+    }
+
+    return allClientes
   }
 
   return {

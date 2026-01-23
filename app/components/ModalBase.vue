@@ -18,17 +18,17 @@
           ]"
         >
           <!-- Header -->
-          <div class="flex items-start justify-between px-5 py-4 border-b border-gray-100 bg-white sticky top-0 z-10 flex-shrink-0">
-            <div class="flex-1 min-w-0 pr-4">
-              <h2 class="text-lg font-semibold text-gray-900 truncate">{{ title }}</h2>
-              <p v-if="subtitle" class="text-xs text-gray-500 mt-0.5 truncate">{{ subtitle }}</p>
+          <div class="flex items-start justify-between px-4 py-3 border-b border-gray-50 bg-white sticky top-0 z-10 flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <h2 class="text-[10px] font-bold text-gray-800 uppercase tracking-widest">{{ title }}</h2>
+              <p v-if="subtitle" class="text-[9px] text-gray-400 font-semibold mt-0.5">{{ subtitle }}</p>
             </div>
             <button
               @click="close"
-              class="p-2 -mr-2 hover:bg-gray-100 rounded-xl transition-colors flex-shrink-0"
+              class="p-1 hover:bg-gray-50 rounded transition-colors"
               aria-label="Fechar"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>

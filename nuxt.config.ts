@@ -36,7 +36,7 @@ export default defineNuxtConfig({
   supabase: {
     url: process.env.NUXT_SUPABASE_URL,
     key: process.env.NUXT_SUPABASE_KEY,
-    types: './app/types/database.types.ts',
+    types: false, // Disabling to fix persistent path warning
     redirect: true,
     redirectOptions: {
       login: '/login',
@@ -44,5 +44,16 @@ export default defineNuxtConfig({
       exclude: ['/login', '/confirm', '/recuperar', '/cadastro', '/privacidade', '/'],
       saveRedirectToCookie: true
     }
+  },
+  runtimeConfig: {
+    public: {
+      webhookBirthdayUrl: process.env.NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL,
+      webhookEmbarqueUrl: process.env.NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL
+    }
+  },
+  nitro: {
+    // scheduledTasks: {
+    //   '*/1 * * * *': ['webhook-events']
+    // }
   }
 })
