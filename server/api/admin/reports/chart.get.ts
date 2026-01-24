@@ -179,10 +179,33 @@ export default defineEventHandler(async (event) => {
 
         const recorrentesHoje = todayLeadsCount - novosLeadsHoje
 
+        // "Vendas e Faturamento Hoje"
+        let vendasHoje = 0
+        let faturamentoHoje = 0
+
+        salesRows.forEach(s => {
+            if (!s.created_at) return
+            try {
+                // Adjust for timezone if needed, or simple split if constructed consistently
+                // We reused the 'salesByDay' logic which constructs K from ISO split. 
+                // Let's match the 'todayKey' logic (UTC-3 adjustment we did earlier)
+                const sDate = new Date(s.created_at)
+                sDate.setHours(sDate.getHours() - 3)
+                const sKey = sDate.toISOString().split('T')[0]
+
+                if (sKey === todayKey) {
+                    vendasHoje++
+                    faturamentoHoje += (s.valor_venda || 0)
+                }
+            } catch (e) { }
+        })
+
         const stats = {
             leadsHoje: todayLeadsCount,
             novosLeadsHoje: novosLeadsHoje,
             recorrentesHoje: recorrentesHoje,
+            vendasHoje: vendasHoje,
+            faturamentoHoje: faturamentoHoje,
             vendasHistorico: totalVendasHistorico || 0,
             faturamentoHistorico: totalFaturamentoHistorico,
             mediaNovasLeadsPorDia: Math.round(totalNovosPeriodo / days)

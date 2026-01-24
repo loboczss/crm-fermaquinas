@@ -42,9 +42,14 @@
           <div class="text-2xl font-bold text-gray-700">{{ stats.leadsHoje }}</div>
           <div class="text-xs text-gray-600 font-medium">Leads Hoje ({{ todayDate }})</div>
         </div>
-        <div class="bg-orange-50 rounded-lg p-3 border border-orange-100">
-          <div class="text-2xl font-bold text-orange-700">{{ stats.totalVendas }}</div>
-          <div class="text-xs text-orange-600 font-medium">Vendas no Período</div>
+        <div class="bg-orange-50 rounded-lg p-3 border border-orange-100 flex flex-col justify-between">
+          <div>
+            <div class="text-2xl font-bold text-orange-700">{{ stats.vendasHoje }}</div>
+            <div class="text-xs text-orange-600 font-medium">Vendas Hoje ({{ todayDate }})</div>
+          </div>
+          <div class="mt-1 pt-1 border-t border-orange-200">
+             <span class="text-xs font-semibold text-orange-800">{{ formatCurrency(stats.faturamentoHoje) }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -130,6 +135,8 @@ const stats = computed(() => {
       leadsHoje: serverStats.value.leadsHoje,
       novosLeadsHoje: serverStats.value.novosLeadsHoje,
       recorrentesHoje: serverStats.value.recorrentesHoje,
+      vendasHoje: serverStats.value.vendasHoje,
+      faturamentoHoje: serverStats.value.faturamentoHoje,
       vendasHistorico: serverStats.value.vendasHistorico,
       faturamentoHistorico: serverStats.value.faturamentoHistorico,
       mediaNovasLeadsPorDia: serverStats.value.mediaNovasLeadsPorDia
@@ -137,14 +144,14 @@ const stats = computed(() => {
   }
 
   // Fallback se não tiver server stats ainda
-  if (!rawData.value.length) return { totalNovos: 0, totalRecorrentes: 0, leadsHoje: 0, novosLeadsHoje: 0, recorrentesHoje: 0, totalVendas: 0, vendasHistorico: 0, faturamentoHistorico: 0, mediaNovasLeadsPorDia: 0 }
+  if (!rawData.value.length) return { totalNovos: 0, totalRecorrentes: 0, leadsHoje: 0, novosLeadsHoje: 0, recorrentesHoje: 0, vendasHoje: 0, faturamentoHoje: 0, totalVendas: 0, vendasHistorico: 0, faturamentoHistorico: 0, mediaNovasLeadsPorDia: 0 }
   
   const totalNovos = rawData.value.reduce((acc, curr) => acc + curr.novosLeads, 0)
   const totalRecorrentes = rawData.value.reduce((acc, curr) => acc + curr.recorrentes, 0)
   const totalVendas = rawData.value.reduce((acc, curr) => acc + curr.vendas, 0)
   const leadsHoje = rawData.value[rawData.value.length - 1]?.totalAtendimentos || 0
 
-  return { totalNovos, totalRecorrentes, leadsHoje, novosLeadsHoje: 0, recorrentesHoje: 0, totalVendas, vendasHistorico: 0, faturamentoHistorico: 0, mediaNovasLeadsPorDia: 0 }
+  return { totalNovos, totalRecorrentes, leadsHoje, novosLeadsHoje: 0, recorrentesHoje: 0, vendasHoje: 0, faturamentoHoje: 0, totalVendas, vendasHistorico: 0, faturamentoHistorico: 0, mediaNovasLeadsPorDia: 0 }
 })
 
 // Configuração dos Dados do Gráfico
