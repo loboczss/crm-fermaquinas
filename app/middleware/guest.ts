@@ -1,0 +1,10 @@
+import { navigateTo } from '#imports'
+import { useAuth } from '~/composables/useAuth'
+
+export default defineNuxtRouteMiddleware(() => {
+  const { user } = useAuth()
+
+  if (user?.value) {
+    return navigateTo('/calendario')
+  }
+})

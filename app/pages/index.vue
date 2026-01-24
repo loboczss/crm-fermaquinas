@@ -63,6 +63,8 @@ import PageShell from '~/components/PageShell.vue'
 import SurfaceCard from '~/components/SurfaceCard.vue'
 import { navigateTo } from '#imports'
 
+definePageMeta({ middleware: 'guest' })
+
 const handleLogin = async () => {
   await navigateTo('/login')
 }
