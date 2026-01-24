@@ -104,12 +104,13 @@ export const useEmbarques = () => {
         const dayStr = String(day).padStart(2, '0')
         return !!embarquesByDay.value[dayStr] && embarquesByDay.value[dayStr].length > 0
     }
-    const triggerWebhook = async (nome: string, data_embarque: string, contato_id: string) => {
+    const triggerWebhook = async (nome: string, data_embarque: string, contato_id: string, observacoes?: string) => {
         try {
             const payload = buildEmbarqueWebhookPayload({
                 nome,
                 data: data_embarque,
-                contato_id
+                contato_id,
+                observacoes
             })
             await $fetch('/api/admin/trigger-embarque-webhook', {
                 method: 'POST',

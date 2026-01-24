@@ -102,9 +102,10 @@ const handleWebhook = async (embarque: EmbarqueItem) => {
   try {
     const nome = embarque.contact_name || 'Sem nome'
     const data_embarque = embarque.embarque || ''
+    const contato_id = embarque.contato_id || 'unknown'
     const observacoes = [embarque.obs_pendencias, embarque.observacao].filter(Boolean).join(' | ')
 
-    await triggerWebhook(nome, data_embarque, observacoes)
+    await triggerWebhook(nome, data_embarque, contato_id, observacoes)
     alert(`Webhook enviado para ${nome}.`)
   } catch (error) {
     console.error('Erro ao disparar webhook:', error)

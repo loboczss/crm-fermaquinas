@@ -6,6 +6,7 @@ export interface WebhookPayload {
   nome: string;
   data: string;
   contato_id: string;
+  observacoes?: string;
 }
 
 // birthday
@@ -19,12 +20,13 @@ export function buildBirthdayWebhookPayload({ nome, data, contato_id }: { nome: 
 }
 
 // embarque
-export function buildEmbarqueWebhookPayload({ nome, data, contato_id }: { nome: string; data: string; contato_id: string }): WebhookPayload {
+export function buildEmbarqueWebhookPayload({ nome, data, contato_id, observacoes }: { nome: string; data: string; contato_id: string; observacoes?: string }): WebhookPayload {
   return {
     tipo_evento: 'embarque',
     nome,
     data,
     contato_id,
+    observacoes
   };
 }
 

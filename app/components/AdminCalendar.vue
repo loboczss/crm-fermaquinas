@@ -2,36 +2,36 @@
   <div id="admin-calendar" class="w-full">
     <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <!-- Calendar Header -->
-      <div class="px-5 py-4 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+      <div class="px-4 py-3 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <IconCalendar :size="20" color="currentColor" class="text-primary" />
+          <IconCalendar :size="18" color="currentColor" class="text-primary" />
           <div>
-            <h3 class="text-lg font-bold text-gray-900" id="calendar-month-title">
+            <h3 class="text-base font-bold text-gray-900" id="calendar-month-title">
               {{ monthName }} <span class="text-gray-400 font-medium">{{ year }}</span>
             </h3>
-            <p v-if="totalEventsInMonth > 0" class="text-xs text-gray-500 mt-0.5">
+            <p v-if="totalEventsInMonth > 0" class="text-[11px] text-gray-500 mt-0.5">
               {{ totalEventsInMonth }} evento(s) este mês
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
           <button
             @click="$emit('prev-month')"
-            class="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-primary border border-transparent hover:border-gray-200"
+            class="p-1.5 hover:bg-white rounded-md transition-all text-gray-400 hover:text-primary border border-transparent hover:border-gray-200"
             id="calendar-prev-month"
             aria-label="Mês anterior"
           >
-            <IconChevronLeft :size="18" color="currentColor" />
+            <IconChevronLeft :size="16" color="currentColor" />
           </button>
 
           <button
             @click="$emit('next-month')"
-            class="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-primary border border-transparent hover:border-gray-200"
+            class="p-1.5 hover:bg-white rounded-md transition-all text-gray-400 hover:text-primary border border-transparent hover:border-gray-200"
             id="calendar-next-month"
             aria-label="Próximo mês"
           >
-            <IconChevronRight :size="18" color="currentColor" />
+            <IconChevronRight :size="16" color="currentColor" />
           </button>
         </div>
       </div>
@@ -41,7 +41,7 @@
         <div 
           v-for="day in daysOfWeek" 
           :key="day"
-          class="py-2.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-500"
+          class="py-2 text-center text-[10px] font-bold uppercase tracking-wider text-gray-500"
         >
           {{ day }}
         </div>
@@ -53,7 +53,7 @@
           v-for="(day, index) in calendarDays"
           :key="index"
           :class="[
-            'relative aspect-square p-3 border-r border-b border-gray-100 transition-all group',
+            'relative aspect-square p-2 border-r border-b border-gray-100 transition-all group',
             day.isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50/50',
             day.hasEvent && day.isCurrentMonth ? 'cursor-pointer hover:shadow-inner' : '',
             index % 7 === 6 ? 'border-r-0' : '',
