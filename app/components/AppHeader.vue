@@ -1,15 +1,15 @@
 <template>
-  <header id="app-header" class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
-    <div class="container mx-auto px-6 h-16 flex items-center">
+  <header id="app-header" class="sticky top-0 z-50 w-full bg-white shadow-lg border-b border-gray-200/50">
+    <div class="container mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center">
       
       <!-- Left Section: Logo -->
       <div class="flex-1 flex items-center">
         <NuxtLink to="/" class="group flex items-center gap-2">
           <div class="relative flex items-center">
-            <span class="text-xl font-black tracking-tighter text-gray-900 group-hover:scale-105 transition-transform duration-300 block uppercase">
+            <span class="text-lg sm:text-xl font-black tracking-tight text-gray-900 group-hover:scale-105 transition-transform duration-300 block uppercase">
               CRM Eva
             </span>
-            <span class="ml-0.5 text-primary text-2xl leading-none animate-pulse">.</span>
+            <span class="ml-0.5 text-primary text-xl sm:text-2xl leading-none animate-pulse">.</span>
           </div>
         </NuxtLink>
       </div>
@@ -27,7 +27,7 @@
                 <div class="icon-wrapper text-gray-400 group-hover:text-primary group-[.active]:text-primary transition-all duration-300 transform group-hover:scale-125">
                   <component :is="item.icon" class="w-4 h-4" />
                 </div>
-                <span class="text-[11px] font-extrabold tracking-[0.2em] uppercase text-gray-500 group-hover:text-gray-900 group-[.active]:text-gray-900 transition-colors duration-300 relative pb-1">
+                <span class="text-[11px] font-extrabold tracking-[0.05em] uppercase text-gray-500 group-hover:text-gray-900 group-[.active]:text-gray-900 transition-colors duration-300 relative pb-1">
                   {{ item.label }}
                   <span class="nav-underline"></span>
                 </span>
@@ -43,14 +43,14 @@
           <AppNotifications v-if="user" />
           <ClientOnly>
             <div v-if="!user" class="flex items-center gap-5">
-              <NuxtLink to="/cadastro" class="text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">
+              <NuxtLink to="/cadastro" class="text-[11px] font-bold uppercase tracking-wide text-gray-400 hover:text-primary transition-colors">
                 Criar conta
               </NuxtLink>
               <BaseButton
                 id="auth-button-desktop"
                 variant="primary"
                 size="sm"
-                class="rounded-full px-6 h-9 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
+                class="rounded-full px-6 h-9 text-[11px] font-black uppercase tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
                 @click="handleAuthAction"
               >
                 Entrar
@@ -68,13 +68,13 @@
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                 </div>
-                <span class="hidden xl:block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 group-hover:text-gray-900 transition-colors">
+                <span class="hidden xl:block text-[11px] font-extrabold uppercase tracking-wide text-gray-500 group-hover:text-gray-900 transition-colors">
                   PERFIL
                 </span>
               </NuxtLink>
               <button
                 @click="handleAuthAction"
-                class="text-[11px] font-bold uppercase tracking-widest text-gray-300 hover:text-red-500 transition-colors"
+                class="text-[11px] font-bold uppercase tracking-wide text-gray-300 hover:text-red-500 transition-colors"
               >
                 SAIR
               </button>
@@ -118,7 +118,7 @@
             <li v-for="item in navItems" :key="item.path">
               <NuxtLink 
                 :to="item.path" 
-                class="flex items-center gap-5 text-[14px] font-black uppercase tracking-[0.25em] text-gray-500 hover:text-primary transition-all active:scale-95"
+                class="flex items-center gap-5 text-[14px] font-black uppercase tracking-[0.1em] text-gray-500 hover:text-primary transition-all active:scale-95"
                 active-class="text-primary"
                 @click="isMenuOpen = false"
               >
@@ -131,7 +131,7 @@
             <li v-if="user">
               <NuxtLink 
                 to="/perfil"
-                class="flex items-center gap-5 text-[14px] font-black uppercase tracking-[0.25em] text-gray-500 hover:text-primary transition-all active:scale-95"
+                class="flex items-center gap-5 text-[14px] font-black uppercase tracking-[0.1em] text-gray-500 hover:text-primary transition-all active:scale-95"
                 active-class="text-primary"
                 @click="isMenuOpen = false"
               >
@@ -153,7 +153,7 @@
             <div v-if="!user" class="space-y-4">
               <NuxtLink 
                 to="/cadastro"
-                class="block w-full text-center py-2 text-[12px] font-bold uppercase tracking-widest text-gray-400 hover:text-primary transition-colors"
+                class="block w-full text-center py-2 text-[12px] font-bold uppercase tracking-wide text-gray-400 hover:text-primary transition-colors"
                 @click="isMenuOpen = false"
               >
                 CRIAR CONTA
@@ -164,7 +164,7 @@
             id="auth-button-mobile"
             variant="primary" 
             size="md" 
-            class="w-full justify-center rounded-2xl text-[12px] font-black uppercase tracking-widest h-14 shadow-xl shadow-primary/20"
+            class="w-full justify-center rounded-2xl text-[12px] font-black uppercase tracking-wide h-14 shadow-xl shadow-primary/20"
             @click="handleAuthAction"
           >
             <ClientOnly>
@@ -348,7 +348,8 @@ const isMenuOpen = ref(false)
 
 const navItems = computed(() => {
   const items = [
-    { label: 'Início', path: '/', icon: markRaw(HomeIcon) },
+    // show only for guests
+    { label: 'Início', path: '/', guestOnly: true, icon: markRaw(HomeIcon) },
     { label: 'Clientes', path: '/clientes', auth: true, icon: markRaw(UsersIcon) },
     { label: 'Vendas', path: '/vendas', auth: true, icon: markRaw(SalesIcon) },
     { label: 'Calendário', path: '/calendario', auth: true, icon: markRaw(CalendarIcon) },
@@ -357,7 +358,9 @@ const navItems = computed(() => {
   ]
 
   return items.filter((i) => {
-    return !i.auth || user.value
+    if (i.auth && !user.value) return false
+    if (i.guestOnly && user.value) return false
+    return true
   })
 })
 
