@@ -206,9 +206,8 @@
   transform: translateY(-4px) scale(1.2);
 }
 
-/* Disney+ specific tracking and font weight */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
+/* Disney+ specific tracking and font weight */
 header {
   font-family: 'Inter', sans-serif;
 }

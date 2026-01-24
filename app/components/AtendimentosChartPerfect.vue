@@ -2,14 +2,14 @@
   <SurfaceCard>
     <!-- Header com Filtro -->
     <div class="mb-6">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div class="flex items-center gap-2">
           <IconCalendar class="w-5 h-5 text-gray-400" />
           <span class="text-sm font-medium text-gray-600">Período:</span>
           <select 
             v-model="periodoSelecionado" 
             @change="atualizarDados"
-            class="text-sm border border-gray-200 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
+            class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white w-full md:w-auto"
           >
             <option value="7">Últimos 7 dias</option>
             <option value="15">Últimos 15 dias</option>
@@ -21,7 +21,7 @@
           :disabled="loading"
           variant="outline"
           size="sm"
-          class="flex items-center gap-2"
+          class="flex items-center justify-center gap-2 w-full md:w-auto"
         >
           <IconActivity class="w-4 h-4" :class="{ 'animate-spin': loading }" />
           Atualizar
@@ -29,7 +29,7 @@
       </div>
 
       <!-- Resumo Rápido -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         <div class="bg-green-50 rounded-lg p-3 border border-green-100">
           <div class="text-2xl font-bold text-green-700">{{ stats.novosLeadsHoje }}</div>
           <div class="text-xs text-green-600 font-medium">Novos Leads ({{ todayDate }})</div>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Container do Gráfico -->
-    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm h-[400px] relative">
+    <div class="bg-white rounded-xl p-3 md:p-4 border border-gray-200 shadow-sm h-[320px] md:h-[400px] relative">
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-xl">
         <div class="flex flex-col items-center gap-3">
           <IconActivity class="w-8 h-8 text-primary animate-spin" />

@@ -1,18 +1,5 @@
-export interface AtendimentosDia {
-  data: string
-  novosLeads: number
-  recorrentes: number
-  totalAtendimentos: number
-  vendas: number
-}
 
-export interface AtendimentosStats {
-  leadsHoje: number
-  novosLeadsHoje: number
-  vendasHistorico: number
-  faturamentoHistorico: number
-  mediaNovasLeadsPorDia: number
-}
+import type { AtendimentosDia, AtendimentosStats } from './useAtendimentos'
 
 export const useAtendimentosReal = () => {
   const supabase = useSupabaseClient()

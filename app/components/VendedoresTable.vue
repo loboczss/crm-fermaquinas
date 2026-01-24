@@ -50,69 +50,74 @@
       <p class="text-gray-500">Nenhum vendedor encontrado</p>
     </div>
 
-    <div v-else class="bg-gray-50 rounded-lg p-4">
-      <div class="bg-white rounded-lg overflow-hidden shadow-sm">
-      <!-- Header da tabela -->
-        <div class="bg-gray-100 px-6 py-3">
-          <div class="grid grid-cols-5 gap-4 text-sm font-semibold text-gray-600">
-            <div class="text-center">#</div>
-            <div>Vendedor</div>
-            <div class="text-center">Vendas</div>
-            <div class="text-center">Valor Total</div>
-            <div class="text-center">Clientes Atendidos</div>
-          </div>
-        </div>
+    <div v-else class="bg-gray-50 rounded-lg p-3 md:p-4">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Tabela com Scroll Horizontal Mobile -->
+        <div class="overflow-x-auto">
+          <div class="min-w-[700px]"> <!-- Força largura mínima para evitar esmagamento -->
+            <!-- Header da tabela -->
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-100">
+              <div class="grid grid-cols-5 gap-4 text-xs md:text-sm font-semibold text-gray-600">
+                <div class="text-center w-10">#</div>
+                <div>Vendedor</div>
+                <div class="text-center">Vendas</div>
+                <div class="text-center">Valor Total</div>
+                <div class="text-center">Clientes At</div>
+              </div>
+            </div>
 
-        <!-- Linhas da tabela -->
-        <div class="divide-y divide-gray-100">
-          <div 
-            v-for="vendedor in vendedores" 
-            :key="vendedor.nome"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors"
-          >
-            <div class="grid grid-cols-5 gap-4 items-center">
-              <!-- Posição com medalha -->
-              <div class="text-center">
-                <div v-if="vendedor.posicao <= 3" class="flex items-center justify-center">
-                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                       :class="{
-                         'bg-yellow-500': vendedor.posicao === 1,
-                         'bg-gray-400': vendedor.posicao === 2,
-                         'bg-orange-600': vendedor.posicao === 3
-                       }">
-                    <svg v-if="vendedor.posicao === 1" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span v-else>{{ vendedor.posicao }}</span>
+            <!-- Linhas da tabela -->
+            <div class="divide-y divide-gray-100">
+              <div 
+                v-for="vendedor in vendedores" 
+                :key="vendedor.nome"
+                class="px-4 py-3 hover:bg-gray-50 transition-colors"
+              >
+                <div class="grid grid-cols-5 gap-4 items-center">
+                  <!-- Posição com medalha -->
+                  <div class="text-center w-10">
+                    <div v-if="vendedor.posicao <= 3" class="flex items-center justify-center">
+                      <div class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white text-xs md:text-sm font-bold"
+                           :class="{
+                             'bg-yellow-500': vendedor.posicao === 1,
+                             'bg-gray-400': vendedor.posicao === 2,
+                             'bg-orange-600': vendedor.posicao === 3
+                           }">
+                        <svg v-if="vendedor.posicao === 1" class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span v-else>{{ vendedor.posicao }}</span>
+                      </div>
+                    </div>
+                    <div v-else class="text-base md:text-lg font-semibold text-gray-700">
+                      {{ vendedor.posicao }}
+                    </div>
+                  </div>
+
+                  <!-- Nome do vendedor -->
+                  <div class="truncate pr-2">
+                    <p class="font-semibold text-gray-900 text-sm md:text-base truncate">{{ vendedor.nome }}</p>
+                  </div>
+
+                  <!-- Vendas -->
+                  <div class="text-center">
+                    <span class="text-sm md:text-lg font-semibold text-gray-900">{{ vendedor.vendas }}</span>
+                  </div>
+
+                  <!-- Faturamento -->
+                  <div class="text-center">
+                    <span class="text-xs md:text-sm font-medium text-gray-700 bg-green-50 px-2 py-1 rounded text-green-700 border border-green-100 whitespace-nowrap">
+                      {{ formatCurrency(vendedor.faturamento) }}
+                    </span>
+                  </div>
+
+                  <!-- Clientes atendidos -->
+                  <div class="text-center">
+                    <span class="inline-flex items-center justify-center w-auto min-w-[2rem] px-2 h-6 md:h-8 bg-gray-100 rounded-full text-xs md:text-sm font-semibold text-gray-700">
+                      {{ vendedor.clientesAtendidos }}
+                    </span>
                   </div>
                 </div>
-                <div v-else class="text-lg font-semibold text-gray-700">
-                  {{ vendedor.posicao }}
-                </div>
-              </div>
-
-              <!-- Nome do vendedor -->
-              <div>
-                <p class="font-semibold text-gray-900">{{ vendedor.nome }}</p>
-              </div>
-
-              <!-- Vendas -->
-              <div class="text-center">
-                <span class="text-lg font-semibold text-gray-900">{{ vendedor.vendas }}</span>
-              </div>
-
-              <!-- Faturamento -->
-              <div class="text-center">
-                <span class="text-sm font-medium text-gray-700 bg-green-50 px-2 py-1 rounded text-green-700 border border-green-100">
-                  {{ formatCurrency(vendedor.faturamento) }}
-                </span>
-              </div>
-
-              <!-- Clientes atendidos -->
-              <div class="text-center">
-                <span class="inline-flex items-center justify-center w-12 h-8 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
-                  {{ vendedor.clientesAtendidos }}
-                </span>
               </div>
             </div>
           </div>
