@@ -2,6 +2,7 @@ export interface VendedorRanking {
   posicao: number
   nome: string
   vendas: number
+  faturamento: number
   clientesAtendidos: number
 }
 
@@ -37,20 +38,20 @@ export const useVendedores = () => {
         // Filtrar nomes inválidos
         const filteredData = data.filter(msg => {
           const nome = msg.sender_name?.toLowerCase().trim()
-          return nome && 
-                 nome !== 'desconhecido' && 
-                 nome !== 'unknown' && 
-                 nome !== 'null' && 
-                 nome !== 'undefined' &&
-                 nome !== 'n/a' &&
-                 nome !== 'sem nome' &&
-                 nome !== 'anonimo' &&
-                 nome !== 'anonymous' &&
-                 !nome.includes('test') &&
-                 !nome.includes('teste') &&
-                 nome.length > 1
+          return nome &&
+            nome !== 'desconhecido' &&
+            nome !== 'unknown' &&
+            nome !== 'null' &&
+            nome !== 'undefined' &&
+            nome !== 'n/a' &&
+            nome !== 'sem nome' &&
+            nome !== 'anonimo' &&
+            nome !== 'anonymous' &&
+            !nome.includes('test') &&
+            !nome.includes('teste') &&
+            nome.length > 1
         })
-        
+
         allMensagens = [...allMensagens, ...filteredData]
         console.log(`Carregadas ${allMensagens.length} mensagens válidas até agora...`)
         from += pageSize
@@ -67,7 +68,7 @@ export const useVendedores = () => {
   const fetchAllVendas = async () => {
     const pageSize = 1000
     let from = 0
-    let allVendas: Array<{ vendedor: string }> = []
+    let allVendas: Array<{ vendedor: string, valor_venda: number }> = []
     let hasMore = true
 
     console.log('Iniciando busca de todas as vendas...')
@@ -75,7 +76,7 @@ export const useVendedores = () => {
     while (hasMore) {
       const { data, error } = await supabase
         .from('historico_vendas_evastur')
-        .select('vendedor')
+        .select('vendedor, valor_venda')
         .not('vendedor', 'is', null)
         .not('vendedor', 'eq', '')
         .range(from, from + pageSize - 1)
@@ -89,20 +90,20 @@ export const useVendedores = () => {
         // Filtrar nomes inválidos
         const filteredData = data.filter(venda => {
           const nome = venda.vendedor?.toLowerCase().trim()
-          return nome && 
-                 nome !== 'desconhecido' && 
-                 nome !== 'unknown' && 
-                 nome !== 'null' && 
-                 nome !== 'undefined' &&
-                 nome !== 'n/a' &&
-                 nome !== 'sem nome' &&
-                 nome !== 'anonimo' &&
-                 nome !== 'anonymous' &&
-                 !nome.includes('test') &&
-                 !nome.includes('teste') &&
-                 nome.length > 1
+          return nome &&
+            nome !== 'desconhecido' &&
+            nome !== 'unknown' &&
+            nome !== 'null' &&
+            nome !== 'undefined' &&
+            nome !== 'n/a' &&
+            nome !== 'sem nome' &&
+            nome !== 'anonimo' &&
+            nome !== 'anonymous' &&
+            !nome.includes('test') &&
+            !nome.includes('teste') &&
+            nome.length > 1
         })
-        
+
         allVendas = [...allVendas, ...filteredData]
         console.log(`Carregadas ${allVendas.length} vendas válidas até agora...`)
         from += pageSize
@@ -129,7 +130,7 @@ export const useVendedores = () => {
 
       // Processar dados de mensagens para contar clientes únicos por vendedor
       const vendedoresMap = new Map<string, Set<string>>()
-      
+
       mensagensData.forEach(msg => {
         if (msg.sender_name && msg.contato_id) {
           if (!vendedoresMap.has(msg.sender_name)) {
@@ -144,11 +145,14 @@ export const useVendedores = () => {
         console.log(`${nome}: ${contatos.size} clientes únicos`)
       })
 
-      // Processar dados de vendas para contar vendas por vendedor
+      // Processar dados de vendas para contar vendas e faturamento por vendedor
       const vendasMap = new Map<string, number>()
+      const faturamentoMap = new Map<string, number>()
+
       vendasData.forEach(venda => {
         if (venda.vendedor) {
           vendasMap.set(venda.vendedor, (vendasMap.get(venda.vendedor) || 0) + 1)
+          faturamentoMap.set(venda.vendedor, (faturamentoMap.get(venda.vendedor) || 0) + (venda.valor_venda || 0))
         }
       })
 
@@ -156,13 +160,14 @@ export const useVendedores = () => {
 
       // Combinar dados e criar ranking
       const ranking: VendedorRanking[] = []
-      
+
       // Adicionar vendedores das mensagens
       vendedoresMap.forEach((contatos, nome) => {
         ranking.push({
           posicao: 0, // Será definido após ordenação
           nome,
           vendas: vendasMap.get(nome) || 0,
+          faturamento: faturamentoMap.get(nome) || 0,
           clientesAtendidos: contatos.size
         })
       })
@@ -174,13 +179,18 @@ export const useVendedores = () => {
             posicao: 0,
             nome,
             vendas,
+            faturamento: faturamentoMap.get(nome) || 0,
             clientesAtendidos: 0
           })
         }
       })
 
-      // Ordenar por vendas (decrescente) e depois por clientes atendidos
+      // Ordenar por faturamento (decrescente) se houver, ou vendas
+      // Geralmente ranking é por Faturamento (valor)
       ranking.sort((a, b) => {
+        if (b.faturamento !== a.faturamento) {
+          return b.faturamento - a.faturamento
+        }
         if (b.vendas !== a.vendas) {
           return b.vendas - a.vendas
         }

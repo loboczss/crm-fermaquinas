@@ -52,12 +52,13 @@
 
     <div v-else class="bg-gray-50 rounded-lg p-4">
       <div class="bg-white rounded-lg overflow-hidden shadow-sm">
-        <!-- Header da tabela -->
+      <!-- Header da tabela -->
         <div class="bg-gray-100 px-6 py-3">
-          <div class="grid grid-cols-4 gap-4 text-sm font-semibold text-gray-600">
+          <div class="grid grid-cols-5 gap-4 text-sm font-semibold text-gray-600">
             <div class="text-center">#</div>
             <div>Vendedor</div>
             <div class="text-center">Vendas</div>
+            <div class="text-center">Valor Total</div>
             <div class="text-center">Clientes Atendidos</div>
           </div>
         </div>
@@ -69,7 +70,7 @@
             :key="vendedor.nome"
             class="px-6 py-4 hover:bg-gray-50 transition-colors"
           >
-            <div class="grid grid-cols-4 gap-4 items-center">
+            <div class="grid grid-cols-5 gap-4 items-center">
               <!-- Posição com medalha -->
               <div class="text-center">
                 <div v-if="vendedor.posicao <= 3" class="flex items-center justify-center">
@@ -100,6 +101,13 @@
                 <span class="text-lg font-semibold text-gray-900">{{ vendedor.vendas }}</span>
               </div>
 
+              <!-- Faturamento -->
+              <div class="text-center">
+                <span class="text-sm font-medium text-gray-700 bg-green-50 px-2 py-1 rounded text-green-700 border border-green-100">
+                  {{ formatCurrency(vendedor.faturamento) }}
+                </span>
+              </div>
+
               <!-- Clientes atendidos -->
               <div class="text-center">
                 <span class="inline-flex items-center justify-center w-12 h-8 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
@@ -120,6 +128,7 @@ import SurfaceCard from './SurfaceCard.vue'
 import BaseButton from './BaseButton.vue'
 import IconActivity from './IconActivity.vue'
 import { useVendedores } from '~/composables/useVendedores'
+import { formatCurrency } from '~/utils/formatters'
 
 const { vendedores, loading, error, fetchVendedoresRanking } = useVendedores()
 
