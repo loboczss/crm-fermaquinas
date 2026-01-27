@@ -63,7 +63,15 @@ import PageShell from '~/components/PageShell.vue'
 import SurfaceCard from '~/components/SurfaceCard.vue'
 import { navigateTo } from '#imports'
 
-definePageMeta({ middleware: 'guest' })
+definePageMeta({
+  middleware: [function redirectIfLoggedIn(context) {
+    // Middleware inline para garantir que usuário autenticado não veja a index
+    const user = useSupabaseUser ? useSupabaseUser() : null
+    if (user && user.value) {
+      return navigateTo('/relatorios')
+    }
+  }, 'guest']
+})
 
 const handleLogin = async () => {
   await navigateTo('/login')

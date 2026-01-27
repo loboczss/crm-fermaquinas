@@ -318,21 +318,25 @@ const activeEventsCount = computed(() => {
 })
 const eventCounts = computed(() => {
   const counts: Record<string, number> = {}
-  
   if (selectedCalendar.value === 'shipping') {
+    // Suporte a datas dd/mm/aaaa
     Object.entries(embarquesByDay.value).forEach(([day, items]) => {
-      counts[day] = items.length
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(day)) {
+        // Usa apenas o dia
+        const dia = day.slice(0, 2)
+        counts[dia] = (counts[dia] || 0) + items.length
+      } else {
+        counts[day] = items.length
+      }
     })
     return counts
   }
-
   for (let day = 1; day <= 31; day++) {
     if (hasBirthdayOnDay(day)) {
       const birthdays = getBirthdaysForDay(day)
       counts[String(day).padStart(2, '0')] = birthdays.length
     }
   }
-  
   return counts
 })
 

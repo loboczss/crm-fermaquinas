@@ -116,10 +116,20 @@ const getDaysToShow = (month: number, year: number) => {
   return totalDays
 }
 
+
+// Para os charts, vendas só têm created_at
 const filteredVendas = computed(() => {
   return props.vendas.filter(venda => {
-    const date = new Date(venda.created_at)
-    return date.getMonth() === selectedMonth.value && date.getFullYear() === selectedYear.value
+    let dateObj: Date | null = null
+    if (venda.created_at && /^\d{2}\/\d{2}\/\d{4}$/.test(venda.created_at)) {
+      // dd/mm/aaaa
+      const [dd, mm, yyyy] = venda.created_at.split('/')
+      dateObj = new Date(`${yyyy}-${mm}-${dd}`)
+    } else if (venda.created_at) {
+      dateObj = new Date(venda.created_at)
+    }
+    if (!dateObj || isNaN(dateObj.getTime())) return false
+    return dateObj.getMonth() === selectedMonth.value && dateObj.getFullYear() === selectedYear.value
   })
 })
 

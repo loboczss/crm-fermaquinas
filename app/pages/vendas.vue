@@ -143,13 +143,13 @@
         <BaseInput
           id="vendas-data-inicio"
           label="Data início"
-          type="date"
+          placeholder="dd/mm/aaaa"
           v-model="filters.startDate"
         />
         <BaseInput
           id="vendas-data-fim"
           label="Data fim"
-          type="date"
+          placeholder="dd/mm/aaaa"
           v-model="filters.endDate"
         />
         <div class="space-y-1.5 w-full">

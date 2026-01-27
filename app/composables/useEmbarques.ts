@@ -95,9 +95,20 @@ export const useEmbarques = () => {
         }
     }
 
+
+    // Suporte a datas dd/mm/aaaa
     const getEmbarquesForDay = (day: number): EmbarqueItem[] => {
         const dayStr = String(day).padStart(2, '0')
-        return embarquesByDay.value[dayStr] || []
+        // Aceita tanto chave "01" quanto datas dd/mm/aaaa
+        if (embarquesByDay.value[dayStr]) return embarquesByDay.value[dayStr]
+        // Busca por datas dd/mm/aaaa
+        const found = Object.entries(embarquesByDay.value).find(([k]) => {
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(k)) {
+                return k.startsWith(dayStr + '/')
+            }
+            return false
+        })
+        return found ? found[1] : []
     }
 
     const hasEmbarqueOnDay = (day: number): boolean => {

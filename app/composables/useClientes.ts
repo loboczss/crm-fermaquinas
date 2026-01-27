@@ -248,13 +248,23 @@ export const useClientes = () => {
       query = query.eq('vendedor', filters.vendedor)
     }
 
-    if (filters?.startDate) {
-      query = query.gte('created_at', filters.startDate)
+
+    // Suporte a datas dd/mm/aaaa para embarque
+    const parseDateBr = (dateStr: string) => {
+      if (!dateStr) return ''
+      // Se já estiver no formato yyyy-mm-dd, retorna
+      if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) return dateStr
+      // Se estiver no formato dd/mm/aaaa
+      const [dd, mm, yyyy] = dateStr.split('/')
+      if (dd && mm && yyyy) return `${yyyy}-${mm}-${dd}`
+      return dateStr
     }
 
+    if (filters?.startDate) {
+      query = query.gte('embarque', parseDateBr(filters.startDate))
+    }
     if (filters?.endDate) {
-      // Adiciona o fim do dia para garantir que pega tudo daquela data
-      query = query.lte('created_at', `${filters.endDate}T23:59:59`)
+      query = query.lte('embarque', parseDateBr(filters.endDate))
     }
 
     if (filters?.minValue !== undefined && filters?.minValue !== '') {
