@@ -178,7 +178,10 @@
   </header>
 </template>
 
+
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 .nav-link {
   position: relative;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -206,7 +209,6 @@
   transform: translateY(-4px) scale(1.2);
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 /* Disney+ specific tracking and font weight */
 header {
   font-family: 'Inter', sans-serif;

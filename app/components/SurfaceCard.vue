@@ -1,5 +1,10 @@
 <template>
-  <div :class="['bg-white border border-gray-100 shadow-sm', roundedClass, paddingClass]">
+  <div :class="[
+    'border',
+    glass ? 'bg-white/70 backdrop-blur-md border-white/50 shadow-xl' : 'bg-white border-gray-100 shadow-sm',
+    roundedClass, 
+    paddingClass
+  ]">
     <slot />
   </div>
 </template>
@@ -10,9 +15,11 @@ import { computed } from '#imports'
 const props = withDefaults(defineProps<{
   padding?: 'none' | 'sm' | 'md' | 'lg'
   rounded?: 'md' | 'lg' | 'xl'
+  glass?: boolean
 }>(), {
   padding: 'md',
-  rounded: 'xl'
+  rounded: 'xl',
+  glass: false
 })
 
 const paddingClass = computed(() => {

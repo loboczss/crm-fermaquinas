@@ -1,0 +1,54 @@
+--- Database Inspection: historico_vendas_evastur ---
+==== ALL COLUMNS LIST ====
+ COLUMN: acao_venda
+ COLUMN: cliente_atlas
+ COLUMN: codigo_atlas
+ COLUMN: comissao
+ COLUMN: contact_name
+ COLUMN: contato_id
+ COLUMN: created_at
+ COLUMN: embarque
+ COLUMN: forma_pagamento
+ COLUMN: forma_pagamento_faturas_automaticas
+ COLUMN: fornecedor
+ COLUMN: id
+ COLUMN: id_mensagem_venda
+ COLUMN: instagram
+ COLUMN: obs_pendencias
+ COLUMN: observacao
+ COLUMN: status
+ COLUMN: taxa
+ COLUMN: taxa_adm
+ COLUMN: telefone
+ COLUMN: tipo_venda
+ COLUMN: valor_venda
+ COLUMN: vendedor
+
+==== SAMPLE ROW VALUES ====
+{
+  "id": 3,
+  "created_at": "2025-12-27T19:54:03.291+00:00",
+  "id_mensagem_venda": 384083966,
+  "contato_id": "+5568999718060",
+  "valor_venda": 662.77001953125,
+  "contact_name": "null",
+  "vendedor": "Sandra",
+  "telefone": null,
+  "instagram": null,
+  "codigo_atlas": null,
+  "status": null,
+  "tipo_venda": null,
+  "forma_pagamento": null,
+  "fornecedor": null,
+  "cliente_atlas": null,
+  "embarque": null,
+  "obs_pendencias": null,
+  "forma_pagamento_faturas_automaticas": null,
+  "observacao": null,
+  "acao_venda": null,
+  "taxa": null,
+  "taxa_adm": null,
+  "comissao": null
+}
+
+--- Checking non-null Embarque values ---

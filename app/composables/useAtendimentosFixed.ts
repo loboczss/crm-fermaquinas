@@ -1,4 +1,5 @@
 
+import { useSupabaseClient } from '#imports'
 import type { AtendimentosDia, AtendimentosStats } from './useAtendimentos'
 
 export const useAtendimentosFixed = () => {

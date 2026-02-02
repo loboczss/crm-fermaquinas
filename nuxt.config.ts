@@ -2,25 +2,45 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
+  
+  // Configuração do Vite para suprimir warnings
+  vite: {
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          // Suprimir warnings de dependências circulares
+          if (warning.code === 'CIRCULAR_DEPENDENCY') {
+            return
+          }
+          // Suprimir warnings de imports não utilizados
+          if (warning.code === 'UNUSED_EXTERNAL_IMPORT') {
+            return
+          }
+          warn(warning)
+        }
+      }
+    }
+  },
+  
   app: {
     head: {
-      title: 'Crm: Evastur',
+      title: 'CRM Fermaquinas',
       meta: [
-        { name: 'description', content: 'CRM customizado para Evastur' },
-        { property: 'og:title', content: 'Crm: Evastur' },
-        { property: 'og:description', content: 'Gerencie clientes e vendas com o CRM Eva.' },
+        { name: 'description', content: 'CRM customizado para Fermaquinas' },
+        { property: 'og:title', content: 'CRM Fermaquinas' },
+        { property: 'og:description', content: 'Gerencie clientes e vendas com o CRM Fermaquinas.' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://crm.evastur.cloud/' },
-        { property: 'og:image', content: 'https://crm.evastur.cloud/icon-512.svg' },
+        { property: 'og:url', content: 'https://crm.fermaquinas.com/' },
+        { property: 'og:image', content: 'https://crm.fermaquinas.com/icon-512.svg' },
         { property: 'twitter:card', content: 'summary_large_image' },
-        { property: 'twitter:title', content: 'Crm: Evastur' },
-        { property: 'twitter:description', content: 'Gerencie clientes e vendas com o CRM Eva.' },
-        { property: 'twitter:image', content: 'https://crm.evastur.cloud/icon-512.svg' },
+        { property: 'twitter:title', content: 'CRM Fermaquinas' },
+        { property: 'twitter:description', content: 'Gerencie clientes e vendas com o CRM Fermaquinas.' },
+        { property: 'twitter:image', content: 'https://crm.fermaquinas.com/icon-512.svg' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
         { name: 'theme-color', content: '#3b82f6' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
-        { name: 'apple-mobile-web-app-title', content: 'CRM Eva' },
+        { name: 'apple-mobile-web-app-title', content: 'CRM Fermaquinas' },
         { name: 'format-detection', content: 'telephone=no' }
       ],
       link: [
@@ -55,5 +75,29 @@ export default defineNuxtConfig({
     // scheduledTasks: {
     //   '*/1 * * * *': ['webhook-events']
     // }
+    
+    // Suprimir todos os warnings de dependências circulares e imports não utilizados
+    rollupConfig: {
+      onwarn(warning, warn) {
+        // Suprimir warnings de imports não utilizados do Supabase
+        if (warning.code === 'UNUSED_EXTERNAL_IMPORT' && 
+            (warning.message?.includes('@supabase/postgrest-js') || 
+             warning.message?.includes('@supabase/functions-js'))) {
+          return
+        }
+        
+        // Suprimir warnings de dependências circulares do Nitro/Nuxt (são internas do framework)
+        if (warning.code === 'CIRCULAR_DEPENDENCY' && 
+            (warning.message?.includes('node_modules/nitropack') ||
+             warning.message?.includes('node_modules/@nuxt') ||
+             warning.message?.includes('virtual:#nitro-internal') ||
+             warning.message?.includes('virtual:#internal/nuxt'))) {
+          return
+        }
+        
+        // Mostrar apenas warnings relevantes do nosso código
+        warn(warning)
+      }
+    }
   }
 })

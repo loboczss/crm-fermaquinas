@@ -1,5 +1,5 @@
 {
-  "name": "crm-eva",
+  "name": "crm-fermaquinas",
   "type": "module",
   "private": true,
   "scripts": {
@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "setup": "node scripts/setup.js"
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.3",
@@ -17,5 +18,9 @@
     "vue": "^3.5.26",
     "vue-chartjs": "^5.3.3",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.93.1",
+    "dotenv": "^17.2.3"
   }
 }

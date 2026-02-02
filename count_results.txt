@@ -1,0 +1,1 @@
+Total rows with non-null embarque: 1

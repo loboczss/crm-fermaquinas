@@ -412,16 +412,20 @@ watch(() => props.modelValue, (isOpen) => {
         form.created_at = new Date().toISOString().split('T')[0]
       }
       form.contato_id = props.venda.contato_id || ''
-      form.telefone = props.venda.telefone || null
+      form.telefone = props.venda.telefone ?? null
       form.instagram = props.venda.instagram || ''
-      form.codigo_atlas = props.venda.codigo_atlas || null
+      form.codigo_atlas = props.venda.codigo_atlas ?? null
       form.status = props.venda.status || ''
       form.tipo_venda = props.venda.tipo_venda || ''
       form.forma_pagamento = props.venda.forma_pagamento || ''
-      form.data_venda_atlas = props.venda.data_venda_atlas || ''
+      form.data_venda_atlas = '' // Field removed from DB
       form.cliente_atlas = props.venda.cliente_atlas || ''
       if (props.venda.embarque) {
-        form.embarque = new Date(props.venda.embarque).toISOString().split('T')[0]
+        try {
+          form.embarque = new Date(props.venda.embarque).toISOString().split('T')[0]
+        } catch (e) {
+          form.embarque = ''
+        }
       } else {
         form.embarque = ''
       }
@@ -508,7 +512,6 @@ const handleSave = async () => {
       status: form.status,
       tipo_venda: form.tipo_venda,
       forma_pagamento: form.forma_pagamento,
-      data_venda_atlas: form.data_venda_atlas || null,
       cliente_atlas: form.cliente_atlas,
       embarque: form.embarque,
       obs_pendencias: form.obs_pendencias,

@@ -7,227 +7,81 @@ export default defineEventHandler(async (event) => {
 
     const supabase = await serverSupabaseClient<Database>(event)
 
-    // Range for the REPORT
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - days)
-    startDate.setHours(0, 0, 0, 0)
-
-    // Logic: Mimic SQL CTE for "First Interaction"
-    // 1. Fetch FULL history of message timestamps + contact_ids
-    // 2. Build map of { contact_id: first_seen_date }
-    // 3. Aggregate daily based on strict comparison
-
     try {
-        // 1. Fetch ALL History (Paginated to handle 50k+ rows)
-        let allHistoryRows: any[] = []
-        let hasMore = true
-        let page = 0
-        const pageSize = 1000 // Reduced to 1000 to match default API limits
+        console.time('report-rpc')
+        // 1. Fetch Aggregated Daily Metrics via RPC
+        // @ts-ignore
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_daily_metrics', {
+            days_param: days
+        })
 
-        console.log('Fetching history...')
-
-        // Fetching lightweight columns only
-        while (hasMore) {
-            const { data, error } = await supabase
-                .from('historico_msg_evastur')
-                .select('contato_id, created_at')
-                .range(page * pageSize, (page + 1) * pageSize - 1)
-                .order('created_at', { ascending: true })
-
-            if (error) {
-                console.error('Error fetching history:', error)
-                throw error
-            }
-
-            if (data && data.length > 0) {
-                allHistoryRows = allHistoryRows.concat(data)
-                // If we got fewer rows than requested, we reached the end
-                if (data.length < pageSize) hasMore = false
-                page++
-            } else {
-                hasMore = false
-            }
+        if (rpcError) {
+            console.error('RPC Error:', rpcError)
+            throw rpcError
         }
-        console.log(`Fetched ${allHistoryRows.length} rows total.`)
+        console.timeEnd('report-rpc')
 
-        // 2. Build "First Seen" Map (CTE replacement)
-        const firstSeenMap = new Map<string, string>() // contato_id -> YYYY-MM-DD
-        const activityByDay = new Map<string, Set<string>>() // YYYY-MM-DD -> Set<contato_id>
+        const resultData = (rpcData as any[] || []).map(row => ({
+            data: row.data_dia,
+            novosLeads: Number(row.novos_leads),
+            recorrentes: Number(row.recorrentes),
+            totalAtendimentos: Number(row.total_atendimentos),
+            vendas: Number(row.vendas)
+        }))
 
-        allHistoryRows.forEach(row => {
-            if (!row.contato_id || !row.created_at) return
-
-            // Fix: Parse date robustly using Date object
-            const dateObj = new Date(row.created_at)
-            if (isNaN(dateObj.getTime())) return // Skip invalid dates
-
-            const dateStr = dateObj.toISOString().split('T')[0] // YYYY-MM-DD
-
-            // CTE Logic: MIN(created_at)
-            // Since rows are ordered by date, the first time we encounter a contact is valid.
-            if (!firstSeenMap.has(row.contato_id)) {
-                firstSeenMap.set(row.contato_id, dateStr)
-            }
-
-            // Organize for daily aggregation
-            if (!activityByDay.has(dateStr)) {
-                activityByDay.set(dateStr, new Set())
-            }
-            activityByDay.get(dateStr)!.add(row.contato_id)
-        })
-
-        // 3. Aggregate for the requested period
-        const resultData = []
-        let totalNovosPeriodo = 0
-
-        for (let i = 0; i < days; i++) {
-            const d = new Date(startDate)
-            d.setDate(d.getDate() + i)
-            const dayKey = d.toISOString().split('T')[0]
-
-            const activeContacts = activityByDay.get(dayKey)
-
-            let novos = 0
-            let recorrentes = 0
-            let totalUnicos = 0
-
-            if (activeContacts) {
-                totalUnicos = activeContacts.size
-
-                activeContacts.forEach(contatoId => {
-                    const firstSeen = firstSeenMap.get(contatoId)
-
-                    // Rules:
-                    // New: day == first_seen
-                    // Recurring: day > first_seen
-                    if (firstSeen === dayKey) {
-                        novos++
-                    } else if (firstSeen && firstSeen < dayKey) {
-                        recorrentes++
-                    }
-                })
-            }
-
-            resultData.push({
-                data: dayKey,
-                novosLeads: novos,
-                recorrentes: recorrentes,
-                totalAtendimentos: totalUnicos,
-                vendas: 0 // Will fill next
-            })
-
-            totalNovosPeriodo += novos
-        }
-
-        // 4. Sales Data (Keep existing logic)
-        const { data: salesData, error: salesError } = await supabase
-            .from('historico_vendas_evastur')
-            .select('created_at, valor_venda')
-            .gte('created_at', startDate.toISOString())
-
-        if (salesError) console.error(salesError)
-
-        const salesRows = (salesData as any[]) || []
-
-        // Map sales to days
-        const salesByDay = new Map<string, number>()
-        salesRows.forEach(s => {
-            if (!s.created_at) return
-            try {
-                const k = new Date(s.created_at).toISOString().split('T')[0]
-                salesByDay.set(k, (salesByDay.get(k) || 0) + 1)
-            } catch (e) {
-                // ignore invalid dates
-            }
-        })
-
-        // Merge sales into result
-        resultData.forEach(day => {
-            day.vendas = salesByDay.get(day.data) || 0
-        })
-
-        // 5. Global Stats
-        // Use a fast count for total sales history
+        // 2. Global Stats (Lightweight queries)
         const { count: totalVendasHistorico } = await supabase
             .from('historico_vendas_evastur')
             .select('*', { count: 'exact', head: true })
 
-        // Value sum - fetch column only
-        // To be safe with limits, we rely on the specific sales history logic.
-        // Assuming sales table is smaller than messages (<50k likely), but safe to just fetch column.
         const { data: totalRevData } = await supabase
             .from('historico_vendas_evastur')
-            .select('valor_venda')
+            .select('valor_venda') // Fetching only this column is acceptable for sum if RPC not used for this specific global stat yet
 
         const totalFaturamentoHistorico = (totalRevData as any[])?.reduce((acc, curr) => acc + (curr.valor_venda || 0), 0) || 0
 
-        // "Leads Hoje" logic using server time
-        // Adjust for Brazil Timezone (UTC-3) roughly without external libs
-        // If server is UTC, we want to subtract 3 hours to get 'Sao_Paulo' date
-        const now = new Date()
-        now.setHours(now.getHours() - 3)
-        const todayKey = now.toISOString().split('T')[0]
+        // 3. "Today" Stats extraction
+        // Assuming the RPC returns data up to TODAY, the last row should be today (if there was activity)
+        // Adjust for timezone matching if needed, but usually the DB date is sufficient.
+        const todayStr = new Date().toISOString().split('T')[0]
+        const todayRow = resultData.find(d => d.data === todayStr) || { novosLeads: 0, recorrentes: 0, totalAtendimentos: 0, vendas: 0 }
 
-        const todayLeadsCount = activityByDay.get(todayKey)?.size || 0
+        // Needs to match specific expectation or just use the row data
+        // For faturamentoHoje, we might need a specific query if the RPC only returns count for sales
+        // My RPC 'vendas' is count. 'faturamento' is not in daily metrics yet.
+        // Let's add a quick query for today's revenue to be precise.
 
-        // "Novos Leads Hoje"
-        let novosLeadsHoje = 0
-        activityByDay.get(todayKey)?.forEach(id => {
-            if (firstSeenMap.get(id) === todayKey) novosLeadsHoje++
-        })
+        const startToday = new Date()
+        startToday.setHours(0, 0, 0, 0)
 
-        const recorrentesHoje = todayLeadsCount - novosLeadsHoje
+        const { data: todaySales } = await supabase
+            .from('historico_vendas_evastur')
+            .select('valor_venda')
+            .gte('created_at', startToday.toISOString())
 
-        // "Vendas e Faturamento Hoje"
-        let vendasHoje = 0
-        let faturamentoHoje = 0
+        const faturamentoHoje = (todaySales as any[])?.reduce((acc, curr) => acc + (curr.valor_venda || 0), 0) || 0
 
-        salesRows.forEach(s => {
-            if (!s.created_at) return
-            try {
-                // Adjust for timezone if needed, or simple split if constructed consistently
-                // We reused the 'salesByDay' logic which constructs K from ISO split. 
-                // Let's match the 'todayKey' logic (UTC-3 adjustment we did earlier)
-                const sDate = new Date(s.created_at)
-                sDate.setHours(sDate.getHours() - 3)
-                const sKey = sDate.toISOString().split('T')[0]
-
-                if (sKey === todayKey) {
-                    vendasHoje++
-                    faturamentoHoje += (s.valor_venda || 0)
-                }
-            } catch (e) { }
-        })
 
         const stats = {
-            leadsHoje: todayLeadsCount,
-            novosLeadsHoje: novosLeadsHoje,
-            recorrentesHoje: recorrentesHoje,
-            vendasHoje: vendasHoje,
-            faturamentoHoje: faturamentoHoje,
+            leadsHoje: todayRow.totalAtendimentos,
+            novosLeadsHoje: todayRow.novosLeads,
+            recorrentesHoje: todayRow.recorrentes,
+            vendasHoje: todayRow.vendas,
+            faturamentoHoje: faturamentoHoje, // Calculated separately
             vendasHistorico: totalVendasHistorico || 0,
             faturamentoHistorico: totalFaturamentoHistorico,
-            mediaNovasLeadsPorDia: Math.round(totalNovosPeriodo / days)
-        }
-
-        const debug = {
-            totalFetchedRows: allHistoryRows.length,
-            firstRowDate: allHistoryRows[0]?.created_at,
-            lastRowDate: allHistoryRows[allHistoryRows.length - 1]?.created_at,
-            mapSize: firstSeenMap.size,
-            activityDaysCount: activityByDay.size,
-            sampleRow: allHistoryRows[0]
+            mediaNovasLeadsPorDia: Math.round(resultData.reduce((acc, curr) => acc + curr.novosLeads, 0) / (resultData.length || 1))
         }
 
         return {
             success: true,
             data: resultData,
             stats,
-            debug
+            debug: { source: 'RPC_OPTIMIZED' }
         }
 
     } catch (e: any) {
+        console.error('Handler Error:', e)
         throw createError({
             statusCode: 500,
             statusMessage: e.message

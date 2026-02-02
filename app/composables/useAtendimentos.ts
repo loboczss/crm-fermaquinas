@@ -1,3 +1,5 @@
+import { useSupabaseClient } from '#imports'
+
 export interface AtendimentosDia {
   data: string
   novosLeads: number

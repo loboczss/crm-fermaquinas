@@ -107,15 +107,54 @@
             <DetailSection title="Vendas">
               <div v-if="loadingVendas" class="text-sm text-gray-400">Carregando...</div>
               <div v-else-if="vendas.length === 0" class="text-sm text-gray-400">Nenhuma venda</div>
-              <div v-else class="space-y-2">
-                <div 
-                  v-for="venda in vendas" 
-                  :key="venda.id" 
-                  class="bg-white rounded-lg border border-gray-100 p-3"
+              <div v-else class="space-y-4">
+                <div
+                  v-for="venda in vendas"
+                  :key="venda.id"
+                  class="bg-white rounded-lg border border-gray-100 p-3 space-y-4"
                 >
-                  <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(venda.valor_venda) }}</p>
-                  <p v-if="venda.vendedor" class="text-xs text-gray-500">{{ venda.vendedor }}</p>
-                  <p class="text-[10px] text-gray-400 mt-1">{{ formatDate(venda.created_at) }}</p>
+                  <!-- Básico -->
+                  <DetailSection title="Básico">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <DetailField label="ID do Contato" :value="venda.contato_id" />
+                      <DetailField label="Nome do Cliente" :value="venda.contact_name" />
+                      <DetailField label="Telefone" :value="venda.telefone" />
+                      <DetailField label="Instagram" :value="venda.instagram" />
+                      <DetailField label="Vendedor" :value="venda.vendedor" />
+                      <DetailField label="Valor da Venda (R$)">{{ formatCurrency(venda.valor_venda) }}</DetailField>
+                      <DetailField label="Data da Venda" :value="venda.created_at ? formatDate(venda.created_at) : '-'" />
+                      <DetailField label="Fornecedor" :value="venda.fornecedor" />
+                    </div>
+                  </DetailSection>
+                  <!-- Processo -->
+                  <DetailSection title="Processo">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <DetailField label="Status" :value="venda.status" />
+                      <DetailField label="Tipo de Venda" :value="venda.tipo_venda" />
+                      <DetailField label="Forma de Pagamento" :value="venda.forma_pagamento" />
+                      <DetailField label="Forma Pagamento Faturas Automáticas" :value="venda.forma_pagamento_faturas_automaticas" />
+                      <DetailField label="Ação da Venda" :value="venda.acao_venda" />
+                    </div>
+                  </DetailSection>
+                  <!-- Logística -->
+                  <DetailSection title="Logística">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <DetailField label="Data de Embarque" :value="venda.embarque" />
+                      <DetailField label="Observações / Pendências" :value="venda.obs_pendencias" />
+                      <DetailField label="Observação Geral" :value="venda.observacao" />
+                    </div>
+                  </DetailSection>
+                  <!-- Financeiro/Atlas -->
+                  <DetailSection title="Financeiro/Atlas">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <DetailField label="Código Atlas" :value="venda.codigo_atlas" />
+                      <DetailField label="Cliente Atlas" :value="venda.cliente_atlas" />
+                      <DetailField label="Data da Venda no Atlas" :value="venda.data_venda_atlas" />
+                      <DetailField label="Taxa (%)" :value="venda.taxa" />
+                      <DetailField label="Taxa Administrativa (R$)" :value="venda.taxa_adm" />
+                      <DetailField label="Comissão (%)" :value="venda.comissao" />
+                    </div>
+                  </DetailSection>
                 </div>
               </div>
             </DetailSection>

@@ -28,46 +28,73 @@
         </BaseButton>
       </div>
 
-      <!-- Resumo Rápido -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-        <div class="bg-green-50 rounded-lg p-3 border border-green-100">
-          <div class="text-2xl font-bold text-green-700">{{ stats.novosLeadsHoje }}</div>
-          <div class="text-xs text-green-600 font-medium">Novos Leads ({{ todayDate }})</div>
-        </div>
-        <div class="bg-blue-50 rounded-lg p-3 border border-blue-100">
-          <div class="text-2xl font-bold text-blue-700">{{ stats.recorrentesHoje }}</div>
-          <div class="text-xs text-blue-600 font-medium">Recorrentes ({{ todayDate }})</div>
-        </div>
-        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
-          <div class="text-2xl font-bold text-gray-700">{{ stats.leadsHoje }}</div>
-          <div class="text-xs text-gray-600 font-medium">Leads Hoje ({{ todayDate }})</div>
-        </div>
-        <div class="bg-orange-50 rounded-lg p-3 border border-orange-100 flex flex-col justify-between">
-          <div>
-            <div class="text-2xl font-bold text-orange-700">{{ stats.vendasHoje }}</div>
-            <div class="text-xs text-orange-600 font-medium">Vendas Hoje ({{ todayDate }})</div>
+    <!-- Resumo Rápido -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- New Card Design -->
+        <div class="group relative overflow-hidden bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-emerald-200/50 transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-emerald-500 rounded-full"></div>
           </div>
-          <div class="mt-1 pt-1 border-t border-orange-200">
-             <span class="text-xs font-semibold text-orange-800">{{ formatCurrency(stats.faturamentoHoje) }}</span>
+          <div class="text-sm font-medium text-emerald-600 mb-1">Novos Leads</div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold text-gray-900">{{ stats.novosLeadsHoje }}</span>
+            <span class="text-xs font-semibold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded-full">+ Hoje</span>
+          </div>
+        </div>
+
+        <div class="group relative overflow-hidden bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-violet-100 shadow-sm hover:shadow-violet-200/50 transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-violet-500 rounded-full"></div>
+          </div>
+          <div class="text-sm font-medium text-violet-600 mb-1">Recorrentes</div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold text-gray-900">{{ stats.recorrentesHoje }}</span>
+            <span class="text-xs font-semibold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-full">Ativos</span>
+          </div>
+        </div>
+
+        <div class="group relative overflow-hidden bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-blue-100 shadow-sm hover:shadow-blue-200/50 transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-blue-500 rounded-full"></div>
+          </div>
+          <div class="text-sm font-medium text-blue-600 mb-1">Total Hoje</div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold text-gray-900">{{ stats.leadsHoje }}</span>
+            <span class="text-xs font-semibold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-full">Leads</span>
+          </div>
+        </div>
+
+        <div class="group relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-4 shadow-lg shadow-orange-200 hover:shadow-orange-300/60 transition-all duration-300 hover:-translate-y-1">
+          <div class="relative z-10">
+            <div class="text-sm font-medium text-orange-100 mb-1">Vendas Hoje</div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-white">{{ stats.vendasHoje }}</span>
+              <span class="text-xs font-semibold text-orange-200 border border-orange-400/30 px-1.5 py-0.5 rounded-full">
+                {{ formatCurrency(stats.faturamentoHoje) }}
+              </span>
+            </div>
+          </div>
+          <div class="absolute -right-2 -bottom-2 opacity-20 group-hover:scale-110 transition-transform">
+            <IconActivity class="w-24 h-24 text-white" />
           </div>
         </div>
       </div>
     </div>
 
     <!-- Container do Gráfico -->
-    <div class="bg-white rounded-xl p-3 md:p-4 border border-gray-200 shadow-sm h-[320px] md:h-[400px] relative">
-      <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-xl">
+    <div class="bg-white/40 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/60 shadow-xl h-[350px] md:h-[450px] relative transition-all duration-700 animate-slide-up">
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-10 rounded-2xl">
         <div class="flex flex-col items-center gap-3">
-          <IconActivity class="w-8 h-8 text-primary animate-spin" />
-          <span class="text-sm text-gray-500 font-medium">Carregando dados...</span>
+          <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <span class="text-sm text-gray-600 font-bold tracking-tight">SINCRONIZANDO DADOS...</span>
         </div>
       </div>
       
-      <div v-else-if="error" class="absolute inset-0 flex items-center justify-center bg-red-50 rounded-xl">
-        <div class="text-center p-6">
-          <p class="text-red-600 font-medium mb-2">Erro ao carregar dados</p>
-          <p class="text-red-500 text-sm">{{ error }}</p>
-          <BaseButton @click="atualizarDados" size="sm" variant="outline" class="mt-4">Tentar novamente</BaseButton>
+      <div v-else-if="error" class="absolute inset-0 flex items-center justify-center bg-red-50/50 backdrop-blur-sm rounded-2xl">
+        <div class="text-center p-6 bg-white shadow-xl rounded-2xl border border-red-100">
+          <p class="text-red-600 font-bold mb-2">Ops! Algo deu errado</p>
+          <p class="text-red-500 text-sm mb-4">{{ error }}</p>
+          <BaseButton @click="atualizarDados" size="sm" variant="outline" class="!rounded-full px-6">Tentar novamente</BaseButton>
         </div>
       </div>
 
@@ -123,15 +150,11 @@ const todayDate = computed(() => {
 
 // Estatísticas
 const stats = computed(() => {
-  // Se tivermos stats do servidor, usamos eles (são mais precisos/globais)
   if (serverStats.value) {
     return {
-      // Totais do período (calculados no front para precisão visual do gráfico)
       totalNovos: rawData.value.reduce((acc, curr) => acc + curr.novosLeads, 0),
       totalRecorrentes: rawData.value.reduce((acc, curr) => acc + curr.recorrentes, 0),
       totalVendas: rawData.value.reduce((acc, curr) => acc + curr.vendas, 0),
-      
-      // Totais globais / Hoje (vindos do servidor)
       leadsHoje: serverStats.value.leadsHoje,
       novosLeadsHoje: serverStats.value.novosLeadsHoje,
       recorrentesHoje: serverStats.value.recorrentesHoje,
@@ -143,7 +166,6 @@ const stats = computed(() => {
     }
   }
 
-  // Fallback se não tiver server stats ainda
   if (!rawData.value.length) return { totalNovos: 0, totalRecorrentes: 0, leadsHoje: 0, novosLeadsHoje: 0, recorrentesHoje: 0, vendasHoje: 0, faturamentoHoje: 0, totalVendas: 0, vendasHistorico: 0, faturamentoHistorico: 0, mediaNovasLeadsPorDia: 0 }
   
   const totalNovos = rawData.value.reduce((acc, curr) => acc + curr.novosLeads, 0)
@@ -168,37 +190,42 @@ const chartData = computed(() => {
         label: 'Vendas',
         type: 'line' as const,
         data: rawData.value.map(d => d.vendas),
-        borderColor: '#f97316', // Orange-500
-        backgroundColor: '#f97316',
-        borderWidth: 2,
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+        borderWidth: 3,
         tension: 0.4,
-        pointRadius: 0, 
-        pointHoverRadius: 4,
+        pointRadius: 4,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#f97316',
+        pointBorderWidth: 2,
+        pointHoverRadius: 6,
         yAxisID: 'y1',
-        order: 0
+        order: 0,
+        fill: true
       },
       {
         label: 'Novos Leads',
         type: 'bar' as const,
         data: rawData.value.map(d => d.novosLeads),
-        backgroundColor: '#10b981', // Emerald-500
+        backgroundColor: '#10b981',
+        borderRadius: 6,
         stack: 'Stack 0',
-        barPercentage: 0.6,
-        categoryPercentage: 0.8,
+        barPercentage: 0.5,
+        categoryPercentage: 0.7,
         order: 1
       },
       {
         label: 'Recorrentes',
         type: 'bar' as const,
         data: rawData.value.map(d => d.recorrentes),
-        backgroundColor: '#8b5cf6', // Violet-500
+        backgroundColor: '#8b5cf6',
+        borderRadius: 6,
         stack: 'Stack 0',
-        barPercentage: 0.6,
-        categoryPercentage: 0.8,
-        borderRadius: { topLeft: 4, topRight: 4 },
+        barPercentage: 0.5,
+        categoryPercentage: 0.7,
         order: 1
       }
-    ] as any // Casting to any to avoid strict mixed-chart type issues in this version
+    ] as any
   }
 })
 
@@ -213,38 +240,39 @@ const chartOptions = computed(() => {
     },
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: 'top' as const,
+        align: 'end' as const,
         labels: {
           usePointStyle: true,
-          padding: 20,
-          font: { size: 12, family: "'Inter', sans-serif" }
+          pointStyle: 'circle',
+          padding: 25,
+          font: { size: 12, family: "'Inter', sans-serif", weight: 500 },
+          color: '#4b5563'
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.95)',
-        padding: 12,
-        titleFont: { size: 13, weight: 'bold' as const },
-        bodyFont: { size: 12 },
-        displayColors: true,
-        callbacks: {
-          title: (items: any[]) => {
-            return `Dia ${items[0].label}`
-          }
-        }
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#111827',
+        bodyColor: '#4b5563',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 16,
+        boxPadding: 6,
+        usePointStyle: true,
+        titleFont: { size: 14, weight: 'bold' as const },
+        bodyFont: { size: 13 },
+        cornerRadius: 12
       }
     },
     scales: {
       x: {
-        grid: {
-          display: false, // Ocultar grade vertical para visual mais limpo
-          drawBorder: false
-        },
+        grid: { display: false },
         ticks: {
-          font: { size: 11 },
-          color: '#6b7280',
+          font: { size: 11, weight: 500 },
+          color: '#9ca3af',
           maxRotation: 0,
-          autoSkip: true, // Manter autoSkip para não sobrepor
-          // maxTicksLimit: 10 // REMOVIDO para mostrar mais dias se couber
+          autoSkip: true,
+          padding: 10
         }
       },
       y: {
@@ -252,42 +280,25 @@ const chartOptions = computed(() => {
         display: true,
         position: 'left' as const,
         beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Leads',
-          color: '#9ca3af',
-          font: { size: 10 }
-        },
         grid: {
           color: '#f3f4f6',
-          drawBorder: false
+          lineWidth: 1
         },
+        border: { display: false },
         ticks: {
-          color: '#6b7280',
+          color: '#9ca3af',
           font: { size: 11 },
+          padding: 10,
           precision: 0
         },
-        stacked: true // Habilita empilhamento
+        stacked: true
       },
       y1: {
         type: 'linear' as const,
-        display: true,
+        display: false,
         position: 'right' as const,
         beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Vendas',
-          color: '#f97316',
-          font: { size: 10 }
-        },
-        grid: {
-          drawOnChartArea: false // Apenas grade do eixo Y principal
-        },
-        ticks: {
-          color: '#f97316',
-          font: { size: 11 },
-          precision: 0
-        }
+        grid: { display: false }
       }
     }
   }
@@ -305,14 +316,8 @@ const atualizarDados = async () => {
     
     if (response.success && response.data) {
       rawData.value = response.data
-      
-      // Update stats from server if available
       if (response.stats) {
         serverStats.value = response.stats
-      }
-      
-      if (response.debug) {
-        console.log('🔍 Chart Debug Info:', response.debug)
       }
     }
   } catch (err: any) {
@@ -329,5 +334,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Otimizações visuais adicionais se necessário */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 </style>

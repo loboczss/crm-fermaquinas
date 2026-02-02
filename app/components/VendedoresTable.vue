@@ -1,15 +1,15 @@
 <template>
-  <SurfaceCard>
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-          <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+  <SurfaceCard glass class="animate-slide-up" style="animation-delay: 0.2s">
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200">
+          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         </div>
         <div>
-          <h3 class="text-lg font-semibold text-gray-900">Ranking de Vendedores - Histórico</h3>
-          <p class="text-sm text-gray-500 mt-1">Estatísticas de vendas e atendimentos</p>
+          <h3 class="text-xl font-bold text-gray-900 tracking-tight">Elite de Vendas</h3>
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-widest mt-0.5">Performance Geral Vitalícia</p>
         </div>
       </div>
       <BaseButton
@@ -17,111 +17,115 @@
         :disabled="loading"
         variant="outline"
         size="sm"
-        class="flex items-center gap-2"
+        class="!rounded-full px-4 border-gray-200 hover:bg-gray-50 group"
       >
-        <IconActivity class="w-4 h-4" :class="{ 'animate-spin': loading }" />
-        Atualizar
+        <IconActivity class="w-4 h-4 text-primary group-hover:rotate-180 transition-transform duration-500" :class="{ 'animate-spin': loading }" />
+        <span class="ml-2 font-semibold text-gray-700">Recarregar</span>
       </BaseButton>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center py-12">
-      <div class="flex items-center gap-3 text-gray-500">
-        <IconActivity class="w-5 h-5 animate-spin" />
-        <span>Carregando ranking...</span>
-      </div>
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+      <div class="w-10 h-10 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
+      <span class="text-sm font-medium text-gray-500">Compilando ranking...</span>
     </div>
 
-    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="flex items-center gap-2 text-red-700">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+    <div v-else-if="error" class="bg-red-50/50 backdrop-blur-sm border border-red-100 rounded-2xl p-6 text-center">
+      <div class="inline-flex p-3 bg-red-100 rounded-full mb-3">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
-        <span class="font-medium">Erro ao carregar dados</span>
       </div>
+      <h4 class="font-bold text-red-900">Erro de Sincronização</h4>
       <p class="text-red-600 text-sm mt-1">{{ error }}</p>
     </div>
 
-    <div v-else-if="vendedores.length === 0" class="text-center py-12">
-      <div class="text-gray-400 mb-2">
-        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <div v-else-if="vendedores.length === 0" class="text-center py-20">
+      <div class="mb-4 opacity-20">
+        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       </div>
-      <p class="text-gray-500">Nenhum vendedor encontrado</p>
+      <p class="text-gray-400 font-medium">Aguardando primeiros dados de performance...</p>
     </div>
 
-    <div v-else class="bg-gray-50 rounded-lg p-3 md:p-4">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <!-- Tabela com Scroll Horizontal Mobile -->
-        <div class="overflow-x-auto">
-          <div class="min-w-[700px]"> <!-- Força largura mínima para evitar esmagamento -->
-            <!-- Header da tabela -->
-            <div class="bg-gray-50 px-4 py-3 border-b border-gray-100">
-              <div class="grid grid-cols-5 gap-4 text-xs md:text-sm font-semibold text-gray-600">
-                <div class="text-center w-10">#</div>
-                <div>Vendedor</div>
-                <div class="text-center">Vendas</div>
-                <div class="text-center">Valor Total</div>
-                <div class="text-center">Clientes At</div>
-              </div>
-            </div>
-
-            <!-- Linhas da tabela -->
-            <div class="divide-y divide-gray-100">
-              <div 
-                v-for="vendedor in vendedores" 
-                :key="vendedor.nome"
-                class="px-4 py-3 hover:bg-gray-50 transition-colors"
-              >
-                <div class="grid grid-cols-5 gap-4 items-center">
-                  <!-- Posição com medalha -->
-                  <div class="text-center w-10">
-                    <div v-if="vendedor.posicao <= 3" class="flex items-center justify-center">
-                      <div class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white text-xs md:text-sm font-bold"
-                           :class="{
-                             'bg-yellow-500': vendedor.posicao === 1,
-                             'bg-gray-400': vendedor.posicao === 2,
-                             'bg-orange-600': vendedor.posicao === 3
-                           }">
-                        <svg v-if="vendedor.posicao === 1" class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        <span v-else>{{ vendedor.posicao }}</span>
-                      </div>
-                    </div>
-                    <div v-else class="text-base md:text-lg font-semibold text-gray-700">
-                      {{ vendedor.posicao }}
-                    </div>
+    <div v-else class="relative overflow-hidden">
+      <!-- Gradient overlay for scroll indicator -->
+      <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/50 to-transparent pointer-events-none z-10 md:hidden"></div>
+      
+      <div class="overflow-x-auto pb-4 custom-scrollbar">
+        <table class="w-full min-w-[700px] border-separate border-spacing-y-2">
+          <thead>
+            <tr class="text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest px-4">
+              <th class="pb-4 pl-4 text-center w-16 uppercase">Ranking</th>
+              <th class="pb-4 pl-4 uppercase">Vendedor</th>
+              <th class="pb-4 text-center uppercase">Vendas</th>
+              <th class="pb-4 text-center uppercase">Volume</th>
+              <th class="pb-4 pr-4 text-center uppercase">Alcance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              v-for="vendedor in vendedores" 
+              :key="vendedor.nome"
+              class="group hover:bg-white transition-all duration-300 transform hover:scale-[1.01] hover:shadow-xl hover:shadow-gray-200/50"
+            >
+              <!-- Posição -->
+              <td class="py-4 pl-4 bg-gray-50/50 group-hover:bg-white rounded-l-2xl border-y border-l border-transparent group-hover:border-gray-100 transition-colors">
+                <div class="flex items-center justify-center">
+                  <div v-if="vendedor.posicao <= 3" class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg transform group-hover:rotate-6 transition-transform"
+                       :class="{
+                         'bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 shadow-yellow-200': vendedor.posicao === 1,
+                         'bg-gradient-to-br from-slate-200 via-slate-400 to-slate-500 shadow-slate-200': vendedor.posicao === 2,
+                         'bg-gradient-to-br from-orange-400 via-orange-600 to-orange-700 shadow-orange-200': vendedor.posicao === 3
+                       }">
+                    <svg v-if="vendedor.posicao === 1" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span v-else class="text-sm font-black">{{ vendedor.posicao }}</span>
                   </div>
-
-                  <!-- Nome do vendedor -->
-                  <div class="truncate pr-2">
-                    <p class="font-semibold text-gray-900 text-sm md:text-base truncate">{{ vendedor.nome }}</p>
-                  </div>
-
-                  <!-- Vendas -->
-                  <div class="text-center">
-                    <span class="text-sm md:text-lg font-semibold text-gray-900">{{ vendedor.vendas }}</span>
-                  </div>
-
-                  <!-- Faturamento -->
-                  <div class="text-center">
-                    <span class="text-xs md:text-sm font-medium text-gray-700 bg-green-50 px-2 py-1 rounded text-green-700 border border-green-100 whitespace-nowrap">
-                      {{ formatCurrency(vendedor.faturamento) }}
-                    </span>
-                  </div>
-
-                  <!-- Clientes atendidos -->
-                  <div class="text-center">
-                    <span class="inline-flex items-center justify-center w-auto min-w-[2rem] px-2 h-6 md:h-8 bg-gray-100 rounded-full text-xs md:text-sm font-semibold text-gray-700">
-                      {{ vendedor.clientesAtendidos }}
-                    </span>
+                  <div v-else class="text-lg font-black text-gray-300 group-hover:text-gray-900 transition-colors">
+                    {{ vendedor.posicao }}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </td>
+
+              <!-- Nome -->
+              <td class="py-4 pl-4 bg-gray-50/50 group-hover:bg-white border-y border-transparent group-hover:border-gray-100 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-primary font-bold shadow-sm">
+                    {{ vendedor.nome.charAt(0) }}
+                  </div>
+                  <div>
+                    <p class="font-bold text-gray-900 leading-none mb-1">{{ vendedor.nome }}</p>
+                    <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-tighter">Vendedor Certificado</p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Vendas -->
+              <td class="py-4 text-center bg-gray-50/50 group-hover:bg-white border-y border-transparent group-hover:border-gray-100 transition-colors">
+                <span class="text-xl font-black text-gray-900">{{ vendedor.vendas }}</span>
+              </td>
+
+              <!-- Faturamento -->
+              <td class="py-4 text-center bg-gray-50/50 group-hover:bg-white border-y border-transparent group-hover:border-gray-100 transition-colors">
+                <span class="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 text-sm font-bold rounded-lg border border-green-100 shadow-sm shadow-green-100/50">
+                  {{ formatCurrency(vendedor.faturamento) }}
+                </span>
+              </td>
+
+              <!-- Clientes -->
+              <td class="py-4 pr-4 bg-gray-50/50 group-hover:bg-white rounded-r-2xl border-y border-r border-transparent group-hover:border-gray-100 transition-colors text-center">
+                <span class="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 017 7v1H1s0-1 1-7a7 7 0 017-7z" />
+                  </svg>
+                  {{ vendedor.clientesAtendidos }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </SurfaceCard>
@@ -145,3 +149,31 @@ onMounted(() => {
   fetchVendedoresRanking()
 })
 </script>
+
+<style scoped>
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+</style>
