@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         const birthdayPattern = `%-${month}-%`
 
         const { data, error } = await supabase
-            .from('crm_evastur')
+            .from('crm_artorius')
             .select('id, nome, nome_social, data_nascimento, contato_id')
             .filter('data_nascimento', 'ilike', birthdayPattern)
 

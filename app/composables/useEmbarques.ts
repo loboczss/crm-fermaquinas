@@ -47,7 +47,7 @@ export const useEmbarques = () => {
 
             while (hasMore) {
                 const { data, error: sbError } = await (supabase as any)
-                    .from('historico_vendas_evastur')
+                    .from('historico_vendas_artorius')
                     .select('id, contact_name, embarque, contato_id, fornecedor, obs_pendencias, observacao')
                     .gte('embarque', start)
                     .lt('embarque', end)

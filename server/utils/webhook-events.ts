@@ -72,7 +72,7 @@ const triggerBirthdayWebhooks = async (date: Date, eventType: string) => {
   const birthdayFilter = `%-${month}-${day}`
 
   const { data: birthdays, error } = await supabase
-    .from('crm_evastur')
+    .from('crm_artorius')
     .select('nome, nome_social, contato_id, data_nascimento')
     .ilike('data_nascimento', birthdayFilter)
 
@@ -107,7 +107,7 @@ const triggerEmbarqueWebhooks = async (startDate: Date, eventType: string) => {
   const end = formatDate(addDays(startDate, 1))
 
   const { data: embarques, error } = await supabase
-    .from('historico_vendas_evastur')
+    .from('historico_vendas_artorius')
     .select('contact_name, embarque, obs_pendencias, observacao, fornecedor, contato_id')
     .gte('embarque', start)
     .lt('embarque', end)
@@ -147,7 +147,7 @@ const triggerFollowUpWebhooks = async (eventType: string) => {
 
   // Buscar todas as mensagens com mais de 1 dia
   const { data: messages, error } = await supabase
-    .from('historico_msg_evastur')
+    .from('historico_msg_artorius')
     .select('contato_id, contact_name, created_at, message_type')
     .lt('created_at', oneDayAgo.toISOString())
     .order('created_at', { ascending: false })
@@ -176,7 +176,7 @@ const triggerFollowUpWebhooks = async (eventType: string) => {
 
   // Buscar informações completas dos clientes no CRM
   const { data: clients, error: clientError } = await supabase
-    .from('crm_evastur')
+    .from('crm_artorius')
     .select('contato_id, nome, nome_social, data_nascimento')
     .in('contato_id', clientsToFollow)
 
@@ -211,7 +211,7 @@ const triggerClientesInativosWebhooks = async (eventType: string) => {
 
   // Buscar vendas dos últimos 30 dias para identificar clientes ativos
   const { data: recentSales, error: salesError } = await supabase
-    .from('historico_vendas_evastur')
+    .from('historico_vendas_artorius')
     .select('contato_id, created_at')
     .gte('created_at', thirtyDaysAgo.toISOString())
 
@@ -224,7 +224,7 @@ const triggerClientesInativosWebhooks = async (eventType: string) => {
 
   // Buscar todos os clientes que já compraram alguma vez
   const { data: clientsWithSales, error: clientSalesError } = await supabase
-    .from('historico_vendas_evastur')
+    .from('historico_vendas_artorius')
     .select('contato_id, created_at')
     .order('created_at', { ascending: false })
 
@@ -261,7 +261,7 @@ const triggerClientesInativosWebhooks = async (eventType: string) => {
 
   // Buscar dados completos dos clientes inativos
   const { data: inactiveClients, error: clientsError } = await supabase
-    .from('crm_evastur')
+    .from('crm_artorius')
     .select('contato_id, nome, nome_social, data_nascimento, email, telefone')
     .in('contato_id', inactiveContactIds)
 

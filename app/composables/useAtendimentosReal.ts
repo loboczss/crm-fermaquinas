@@ -31,7 +31,7 @@ export const useAtendimentosReal = () => {
 
       // Buscar mensagens do período
       const { data: mensagensPeriodo, error: mensagensError } = await supabase
-        .from('historico_msg_evastur')
+        .from('historico_msg_artorius')
         .select('created_at, contato_id, message_type, sender_type')
         .gte('created_at', dataLimite.toISOString())
         .order('created_at', { ascending: true })
@@ -96,7 +96,7 @@ export const useAtendimentosReal = () => {
       console.log('🔍 Buscando histórico de contatos...')
       
       const { data: contatosAnteriores } = await supabase
-        .from('historico_msg_evastur')
+        .from('historico_msg_artorius')
         .select('contato_id')
         .lt('created_at', dataLimite.toISOString())
         .limit(50000)
@@ -116,7 +116,7 @@ export const useAtendimentosReal = () => {
       let vendasData: any[] = []
       try {
         const { data: vendas } = await supabase
-          .from('historico_vendas_evastur')
+          .from('historico_vendas_artorius')
           .select('created_at, valor_venda')
           .gte('created_at', dataLimite.toISOString())
 

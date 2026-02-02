@@ -1,7 +1,7 @@
 {
-  "name": "Crm: Evastur",
-  "short_name": "CRM Eva",
-  "description": "CRM customizado para Evastur",
+  "name": "CRM Artorius",
+  "short_name": "CRM Artorius",
+  "description": "CRM customizado para Fermaquinas",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

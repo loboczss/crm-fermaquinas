@@ -1,11 +1,11 @@
 import { ref, onMounted } from '#imports'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database.types'
-import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
+import type { CrmArtorius } from '~~/shared/types/CrmArtorius'
 
 export const useBirthdays = () => {
     const supabase = useSupabaseClient<Database>()
-    const birthdaysToday = ref<CrmEvastur[]>([])
+    const birthdaysToday = ref<CrmArtorius[]>([])
     const loading = ref(false)
     const error = ref<string | null>(null)
 
@@ -24,7 +24,7 @@ export const useBirthdays = () => {
             // but for simplicity and common Supabase patterns, we'll fetch all and filter or use a specific RPC if available.
             // However, we can use filter with %MM-DD
             const { data, error: sbError } = await (supabase as any)
-                .from('crm_evastur')
+                .from('crm_artorius')
                 .select('id, nome, nome_social, data_nascimento, contato_id')
                 .filter('data_nascimento', 'ilike', `%-${todayString}`)
 

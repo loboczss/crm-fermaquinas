@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
     while (hasMore) {
       const { data, error } = await supabase
-        .from('historico_vendas_evastur')
+        .from('historico_vendas_artorius')
         .select('id, contact_name, embarque, contato_id, fornecedor, obs_pendencias, observacao')
         .gte('embarque', startDate)
         .lt('embarque', endDateExclusive)

@@ -5,21 +5,21 @@
 ### URL do Webhook
 Todos os eventos utilizam o mesmo endpoint:
 ```
-https://eva.evastur.cloud/webhook/datas
+https://artorius.fermaquinas.com/webhook/datas
 ```
 
 Configurado no arquivo `.env`:
 ```env
-NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
+NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://artorius.fermaquinas.com/webhook/datas
 ```
 
 ## Eventos Disponíveis
 
 ### 1. Aniversário Hoje (`aniversario_hoje`)
-**Tabela**: `crm_evastur`  
+**Tabela**: `crm_artorius`  
 **Condição**: Clientes que fazem aniversário no dia atual (busca por mês-dia na `data_nascimento`)
 
-**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+**Dados enviados para `https://artorius.fermaquinas.com/webhook/datas`:**
 ```json
 {
   "tipo_evento": "aniversario_hoje",
@@ -31,10 +31,10 @@ NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
 ```
 
 ### 2. Aniversário Amanhã (`aniversario_amanha`)
-**Tabela**: `crm_evastur`  
+**Tabela**: `crm_artorius`  
 **Condição**: Clientes que fazem aniversário no dia seguinte
 
-**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+**Dados enviados para `https://artorius.fermaquinas.com/webhook/datas`:**
 ```json
 {
   "tipo_evento": "aniversario_amanha",
@@ -46,10 +46,10 @@ NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
 ```
 
 ### 3. Embarque Hoje (`embarque_hoje`)
-**Tabela**: `historico_vendas_evastur`  
+**Tabela**: `historico_vendas_artorius`  
 **Condição**: Vendas com `embarque` agendado para o dia atual
 
-**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+**Dados enviados para `https://artorius.fermaquinas.com/webhook/datas`:**
 ```json
 {
   "tipo_evento": "embarque_hoje",
@@ -63,10 +63,10 @@ NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
 ```
 
 ### 4. Embarque D+1 (`embarque_d1`)
-**Tabela**: `historico_vendas_evastur`  
+**Tabela**: `historico_vendas_artorius`  
 **Condição**: Vendas com `embarque` agendado para o dia seguinte
 
-**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+**Dados enviados para `https://artorius.fermaquinas.com/webhook/datas`:**
 ```json
 {
   "tipo_evento": "embarque_d1",
@@ -80,13 +80,13 @@ NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
 ```
 
 ### 5. Follow-up Pendente (`followup_pendente`)
-**Tabelas**: `historico_msg_evastur` + `crm_evastur`  
+**Tabelas**: `historico_msg_artorius` + `crm_artorius`  
 **Condição**: 
 - Mensagens com `created_at` há mais de 1 dia (24 horas)
 - Última mensagem do contato tem `message_type = 'outgoing'` (enviada por nós)
 - Busca dados completos do cliente na tabela CRM
 
-**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+**Dados enviados para `https://artorius.fermaquinas.com/webhook/datas`:**
 ```json
 {
   "tipo_evento": "followup_pendente",
@@ -99,14 +99,14 @@ NUXT_PUBLIC_WEBHOOK_BIRTHDAY_URL=https://eva.evastur.cloud/webhook/datas
 ```
 
 ### 6. Clientes Inativos 30 dias (`clientes_inativos_30d`)
-**Tabelas**: `historico_vendas_evastur` + `crm_evastur`  
+**Tabelas**: `historico_vendas_artorius` + `crm_artorius`  
 **Condição**:
 - Clientes que JÁ compraram alguma vez
 - Última compra (`created_at` na tabela vendas) foi há 30 dias ou mais
 - Busca dados completos do cliente na tabela CRM
 - Calcula exatamente quantos dias desde a última compra
 
-**Dados enviados para `https://eva.evastur.cloud/webhook/datas`:**
+**Dados enviados para `https://artorius.fermaquinas.com/webhook/datas`:**
 ```json
 {
   "tipo_evento": "clientes_inativos_30d",

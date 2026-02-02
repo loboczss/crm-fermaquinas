@@ -19,7 +19,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Interface responsiva com Tailwind CSS
 
 ### Alterado
-- Migração de Evastur para Fermaquinas
+- Migração de Evastur para Fermaquinas/Artorius
 - Atualização das configurações de branding
 - Melhoria na documentação do projeto
 

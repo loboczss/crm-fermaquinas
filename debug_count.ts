@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl!, supabaseKey!)
 
 async function debug() {
     const { count, error } = await supabase
-        .from('historico_vendas_evastur')
+        .from('historico_vendas_artorius')
         .select('*', { count: 'exact', head: true })
         .not('embarque', 'is', null)
 

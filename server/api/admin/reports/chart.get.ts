@@ -31,11 +31,11 @@ export default defineEventHandler(async (event) => {
 
         // 2. Global Stats (Lightweight queries)
         const { count: totalVendasHistorico } = await supabase
-            .from('historico_vendas_evastur')
+            .from('historico_vendas_artorius')
             .select('*', { count: 'exact', head: true })
 
         const { data: totalRevData } = await supabase
-            .from('historico_vendas_evastur')
+            .from('historico_vendas_artorius')
             .select('valor_venda') // Fetching only this column is acceptable for sum if RPC not used for this specific global stat yet
 
         const totalFaturamentoHistorico = (totalRevData as any[])?.reduce((acc, curr) => acc + (curr.valor_venda || 0), 0) || 0
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
         startToday.setHours(0, 0, 0, 0)
 
         const { data: todaySales } = await supabase
-            .from('historico_vendas_evastur')
+            .from('historico_vendas_artorius')
             .select('valor_venda')
             .gte('created_at', startToday.toISOString())
 

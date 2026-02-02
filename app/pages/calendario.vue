@@ -9,7 +9,7 @@
           </div>
           <div>
             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
-              Calendário Eva
+              Calendário Artorius
             </h1>
             <p class="text-sm text-gray-500 mt-1">Gerencie eventos, aniversários e embarques</p>
           </div>

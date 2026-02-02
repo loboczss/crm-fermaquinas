@@ -24,7 +24,7 @@ export const useAtendimentosFixed = () => {
 
       // Buscar TODAS as mensagens (sem filtro de data primeiro para debug)
       const { data: todasMensagens, error: mensagensError } = await supabase
-        .from('historico_msg_evastur')
+        .from('historico_msg_artorius')
         .select('created_at, contato_id, message_type, sender_type')
         .order('created_at', { ascending: true })
 
@@ -118,7 +118,7 @@ export const useAtendimentosFixed = () => {
       let vendasData: any[] = []
       try {
         const { data: vendas, error: vendasError } = await supabase
-          .from('historico_vendas_evastur')
+          .from('historico_vendas_artorius')
           .select('created_at, valor_venda')
           .gte('created_at', dataLimite.toISOString())
 

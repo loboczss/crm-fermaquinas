@@ -16,7 +16,7 @@ BEGIN
     SELECT 
       sender_name as nome,
       COUNT(DISTINCT contato_id) as total_conversas
-    FROM historico_msg_evastur 
+    FROM historico_msg_artorius 
     WHERE message_type = 'outgoing' 
       AND sender_name IS NOT NULL 
       AND sender_name != ''

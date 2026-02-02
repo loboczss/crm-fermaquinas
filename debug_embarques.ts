@@ -12,10 +12,10 @@ const supabaseKey = process.env.NUXT_SUPABASE_KEY || process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl!, supabaseKey!)
 
 async function debug() {
-    let log = '--- Database Inspection: historico_vendas_evastur ---\n'
+    let log = '--- Database Inspection: historico_vendas_artorius ---\n'
 
     const { data: sample, error: schemaError } = await supabase
-        .from('historico_vendas_evastur')
+        .from('historico_vendas_artorius')
         .select('*')
         .limit(1)
 
@@ -33,7 +33,7 @@ async function debug() {
 
     log += '\n--- Checking non-null Embarque values ---\n'
     const { data: embarques, error: eError } = await supabase
-        .from('historico_vendas_evastur')
+        .from('historico_vendas_artorius')
         .select('id, contact_name, embarque')
         .not('embarque', 'is', null)
         .not('embarque', 'eq', '')

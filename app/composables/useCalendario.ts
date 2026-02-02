@@ -1,14 +1,14 @@
 
 import { ref, computed } from '#imports'
 import { useSupabaseClient } from '#imports'
-import type { CrmEvastur } from '~~/shared/types/CrmEvastur'
+import type { CrmArtorius } from '~~/shared/types/CrmArtorius'
 import { buildBirthdayWebhookPayload } from '~/utils/webhookPayload'
 
 export const useCalendario = () => {
     const supabase = useSupabaseClient()
     const currentMonth = ref(new Date().getMonth() + 1)
     const currentYear = ref(new Date().getFullYear())
-    const birthdaysByDay = ref<Record<string, CrmEvastur[]>>({})
+    const birthdaysByDay = ref<Record<string, CrmArtorius[]>>({})
     const loading = ref(false)
     const error = ref<string | null>(null)
 
@@ -70,7 +70,7 @@ export const useCalendario = () => {
         fetchBirthdays()
     }
 
-    const getBirthdaysForDay = (day: number): CrmEvastur[] => {
+    const getBirthdaysForDay = (day: number): CrmArtorius[] => {
         const dayStr = String(day).padStart(2, '0')
         return birthdaysByDay.value[dayStr] || []
     }

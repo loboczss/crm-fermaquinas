@@ -31,7 +31,7 @@ export default defineTask({
         try {
             // Manual fetch or use a fetch-based approach if serverSupabaseClient isn't ready for tasks
             // For simplicity and since we are in a task, let's use a direct fetch to Supabase REST API
-            const res = await $fetch(`${supabaseUrl}/rest/v1/crm_evastur?data_nascimento=ilike.${birthdayFilter}&select=nome,nome_social,contato_id,data_nascimento`, {
+            const res = await $fetch(`${supabaseUrl}/rest/v1/crm_artorius?data_nascimento=ilike.${birthdayFilter}&select=nome,nome_social,contato_id,data_nascimento`, {
                 headers: {
                     'apikey': supabaseKey,
                     'Authorization': `Bearer ${supabaseKey}`

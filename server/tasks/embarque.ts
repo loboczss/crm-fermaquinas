@@ -41,7 +41,7 @@ export default defineTask({
       let hasMore = true
 
       while (hasMore) {
-        const res = await $fetch(`${supabaseUrl}/rest/v1/historico_vendas_evastur?embarque=gte.${startDate}&embarque=lt.${endDate}&select=contact_name,embarque,obs_pendencias,observacao`, {
+        const res = await $fetch(`${supabaseUrl}/rest/v1/historico_vendas_artorius?embarque=gte.${startDate}&embarque=lt.${endDate}&select=contact_name,embarque,obs_pendencias,observacao`, {
           headers: {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`,

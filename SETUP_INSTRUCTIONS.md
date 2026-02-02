@@ -6,6 +6,7 @@ Seu projeto foi adaptado com sucesso para o repositório `crm-fermaquinas`. As s
 
 ### 📝 Atualizações de Branding
 - ✅ Nome do projeto alterado de `crm-eva` para `crm-fermaquinas`
+- ✅ Identidade visual atualizada para Artorius
 - ✅ Configurações do Nuxt atualizadas com nova identidade
 - ✅ Meta tags e SEO configurados para Fermaquinas
 - ✅ URLs de exemplo atualizadas

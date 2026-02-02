@@ -23,7 +23,7 @@ export default defineTask({
 
         try {
             console.log(`Searching for birthdays on: ${month}-${day}`)
-            const res = await $fetch(`${supabaseUrl}/rest/v1/crm_evastur?data_nascimento=ilike.${birthdayFilter}&select=nome,nome_social,contato_id,data_nascimento`, {
+            const res = await $fetch(`${supabaseUrl}/rest/v1/crm_artorius?data_nascimento=ilike.${birthdayFilter}&select=nome,nome_social,contato_id,data_nascimento`, {
                 headers: {
                     'apikey': supabaseKey,
                     'Authorization': `Bearer ${supabaseKey}`

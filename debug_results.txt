@@ -1,4 +1,4 @@
---- Database Inspection: historico_vendas_evastur ---
+--- Database Inspection: historico_vendas_artorius ---
 ==== ALL COLUMNS LIST ====
  COLUMN: acao_venda
  COLUMN: cliente_atlas

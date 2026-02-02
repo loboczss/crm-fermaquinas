@@ -2,13 +2,13 @@
   <!-- Background -->
   <rect width="512" height="512" fill="#3b82f6" rx="64"/>
   
-  <!-- CRM Eva logo -->
+  <!-- CRM Artorius logo -->
   <text x="50%" y="45%" text-anchor="middle" dominant-baseline="middle" 
         font-family="Arial, sans-serif" font-weight="bold" font-size="140" fill="#ffffff">
     CRM
   </text>
   <text x="50%" y="65%" text-anchor="middle" dominant-baseline="middle" 
         font-family="Arial, sans-serif" font-weight="bold" font-size="100" fill="#ffffff">
-    Eva
+    Artorius
   </text>
 </svg>

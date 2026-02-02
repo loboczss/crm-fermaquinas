@@ -1,4 +1,4 @@
-export interface CrmEvastur {
+export interface CrmArtorius {
   id: number
   created_at: string
   contato_id: string
